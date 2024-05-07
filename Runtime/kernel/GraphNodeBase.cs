@@ -10,17 +10,22 @@ namespace AnimGraph
     [Serializable]
     public abstract class GraphNodeBase
     {
-        public bool isAnim_ { get; protected set; }
-        
-        public bool isGraph_ { get; protected set; }
+        public bool isAnim_;
 
-        public int id_ { get; protected set; }
+        public bool isGraph_;
 
-        public List<NodePin> input_ { get; protected set; }
+        public int id_;
+
+        public List<NodePin> input_;
 
 #if UNITY_EDITOR
 
-        public Vector3 position_ { get; protected set; }
+        public Vector2 position_ = Vector2.zero;
+
+        public void SetPosition(Vector2 position)
+        {
+            position_ = position;
+        }
 
 #endif
 

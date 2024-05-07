@@ -11,6 +11,9 @@ namespace AnimGraph.Editor
         private static readonly Dictionary<PinType, Color> _colors = new Dictionary<PinType, Color>
         {
             { PinType.EAnim, Color.cyan },
+            { PinType.EBool, Color.red },
+            { PinType.EInt, Color.green },
+            { PinType.EFloat, Color.blue },
             //{ typeof(StateMachineEntryEditorNode), new Color(30 / 255f, 110 / 255f, 55 / 255f) },
         };
 

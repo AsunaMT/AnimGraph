@@ -16,12 +16,11 @@ namespace AnimGraph
 
         public override void CreatePlayable(Animator animator, PlayableGraph graph)
         {
-            outputPlayable_ = AnimationClipPlayable.Create(graph, clipAsset_);
+            if(clipAsset_ != null)
+            {
+                outputPlayable_ = AnimationClipPlayable.Create(graph, clipAsset_);
+            }
         }
 
-        public override void Execute()
-        {
-            
-        }
     }
 }

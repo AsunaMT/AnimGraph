@@ -9,10 +9,15 @@ using UnityEngine.Playables;
 namespace AnimGraph
 {
     [Serializable]
-    public abstract class AnimBehaviourNodeBase : AnimNodeBase
+    public class AnimBehaviourNodeBase : AnimNodeBase
     {
         public Playable mainPlayable_;
         public BehaviourAdapter adapter_;
+
+        public AnimBehaviourNodeBase() : base()
+        {
+
+        }
 
         public override void InitNode(Animator animator, PlayableGraph graph)
         {

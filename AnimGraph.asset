@@ -9,11 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 54cdef55283365b4f941bf3258f3ee95, type: 3}
   m_Name: AnimGraph
-  m_EditorClassIdentifier: Assembly-CSharp:AnimGraph:AnimGraph
+  m_EditorClassIdentifier: 
   mainGraph_:
+    isAnim_: 1
+    isGraph_: 1
+    id_: 0
+    input_: []
+    position_: {x: 0, y: 0}
     name_: 
-    rootId_: 0
-    outPosition_: {x: 0, y: 0, z: 0}
+    connections_: []
+    animNodes_: []
+    dataNodes_: []
+    rootId_: -1
+    outPosition_: {x: 0, y: 0}
   varList_: []

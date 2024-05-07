@@ -42,15 +42,16 @@ namespace AnimGraph.Editor
 
         protected override void OnPortConnected(Edge edge)
         {
-            var graphEdge = (FlowingGraphEdge)edge;
-
-            base.OnPortConnected(edge);
+            var node = ((EditorNodeBase)edge.output.node).node_;
+            if (node != null)
+            {
+                graph_.rootId_ = node.id_;
+            }
         }
 
         protected override void OnPortDisconnected(Edge edge)
         {
-
-            base.OnPortDisconnected(edge);
+            graph_.rootId_ = -1;
         }
     }
 }

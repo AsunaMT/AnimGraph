@@ -53,7 +53,7 @@ namespace AnimGraph.Editor
 
         public GraphPort outPut_;
 
-        protected GraphView GraphView => GetFirstAncestorOfType<GraphView>();
+        protected GraphViewBase graphView_;
 
 
         // virtual node constructor
@@ -75,9 +75,9 @@ namespace AnimGraph.Editor
             this.AddManipulator(new GraphEditorNodeClickManipulator(OnClicked));
         }
 
-        protected EditorNodeBase(GraphNodeBase node)
+        protected EditorNodeBase(GraphNodeBase node, GraphViewBase grapView)
         {
-
+            graphView_ = grapView;
             base.titleButtonContainer.Clear();
             var titleLabel = titleContainer.Q<Label>(name: "title-label");
             titleLabel.style.marginRight = 6;
@@ -103,22 +103,41 @@ namespace AnimGraph.Editor
                 inputContainer.Add(inputPort);
             }
             outPut_ = InstantiatePort(Direction.Output, typeof(Playable));
+            PinType outType;
+            if (node.isAnim_)
+            {
+                outType = PinType.EAnim;
+            }
+            else
+            {
+                outType = ((DataNodeBase)node).valType_;
+            }
+            outPut_.portColor = ColorTool.GetColor(outType);
+            outPut_.portName = "Output";
+            outputContainer.Add(outPut_);
             SetPosition(new Rect(node.position_, Vector2.zero));
 
             RefreshPorts();
             RefreshExpandedState();
         }
 
-
+        public override void SetPosition(Rect newPos)
+        {
+            base.SetPosition(newPos);
+            if(node_ != null)
+            {
+                node_.position_ = newPos.position;
+            }
+        }
 
 
         public override Port InstantiatePort(Orientation orientation,
             Direction direction, Port.Capacity capacity, Type type)
         {
             var port = GraphPort.Create<FlowingGraphEdge>(direction, type);
-            port.OnConnected += OnPortConnected;
+/*            port.OnConnected += OnPortConnected;
             port.OnDisconnected += OnPortDisconnected;
-
+*/
             return port;
         }
 
@@ -129,26 +148,31 @@ namespace AnimGraph.Editor
 
         protected virtual void OnPortConnected(Edge edge)
         {
-            RaiseNodeChangedEvent();
+            var node = (EditorNodeBase)edge.output.node;
+            int index = inputContainer.IndexOf(edge.input);
+            if (node != null)
+            {
+                graphView_.AddConnection(node, this, index);
+            }
         }
 
         protected virtual void OnPortDisconnected(Edge edge)
         {
-            RaiseNodeChangedEvent();
+            int index = inputContainer.IndexOf(edge.input);
+            graphView_.RemoveConnection(node_.id_, index);
         }
+        /*
+                #region Inspector
 
-/*
-        #region Inspector
+                public virtual IInspector<GraphEditorNode> GetInspector()
+                {
+                    var defaultInspector = new GraphElementInspector<GraphEditorNode>();
+                    defaultInspector.SetTarget(this);
 
-        public virtual IInspector<GraphEditorNode> GetInspector()
-        {
-            var defaultInspector = new GraphElementInspector<GraphEditorNode>();
-            defaultInspector.SetTarget(this);
+                    return defaultInspector;
+                }
 
-            return defaultInspector;
-        }
-
-        #endregion*/
+                #endregion*/
 
 
         #region Events
@@ -175,13 +199,5 @@ namespace AnimGraph.Editor
         }
 
         #endregion
-    }
-
-    // Api Masks
-    public partial class EditorNodeBase
-    {
-        // ReSharper disable once InconsistentNaming
-        [Obsolete("Don't use!", true)]
-        public new VisualElement titleButtonContainer { get; } = null;
     }
 }

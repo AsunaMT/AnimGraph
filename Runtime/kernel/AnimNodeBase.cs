@@ -9,7 +9,7 @@ using UnityEngine.Playables;
 namespace AnimGraph
 {
     [Serializable]
-    public abstract class AnimNodeBase : GraphNodeBase
+    public class AnimNodeBase : GraphNodeBase
     {
         public Playable outputPlayable_;
 
@@ -28,7 +28,10 @@ namespace AnimGraph
             base.InitConnection(animator, graph);
         }
 
-        public abstract void CreatePlayable(Animator animator, PlayableGraph graph);
+        public virtual void CreatePlayable(Animator animator, PlayableGraph graph)
+        {
+
+        }
 
         public virtual void Play()
         {

@@ -22,6 +22,7 @@ namespace AnimGraph
         public int index;
         public PinType pinTye;
         public string name;
+        [NonSerialized]
         public GraphNodeBase node;
 
         public bool Vaild => node != null;

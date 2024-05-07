@@ -31,7 +31,6 @@ namespace AnimGraph.Editor
             this.AddManipulator(new RectangleSelector());
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
 
-            SetupContextMenu();
             style.flexGrow = 1;
 
             // Grid background
@@ -43,29 +42,8 @@ namespace AnimGraph.Editor
 
         }
 
-        private void SetupContextMenu()
-        {
-            var contextMenu = new ContextualMenuManipulator(evt =>
-            {
-                // 将菜单绑定到事件
-                evt.menu.AppendAction("Create", action =>
-                {
-                    ShowSearchWindow(action.eventInfo.mousePosition);
-                });
-            });
-
-            // 添加上下文菜单到GraphView
-            this.AddManipulator(contextMenu);
-        }
-
-        private void ShowSearchWindow(Vector2 mousePosition)
-        {
-            // 创建搜索窗口提供者
-            var searchWindowProvider = ScriptableObject.CreateInstance<MySearchWindowProvider>();
-            // 显示搜索窗口
-
-            SearchWindow.Open(new SearchWindowContext(mousePosition + window_.position.position), searchWindowProvider);
-        }
+        public abstract void AddConnection(EditorNodeBase source, EditorNodeBase target, int index);
+        public abstract void RemoveConnection(int targetId, int index);
 
         Vector2 GetLocalPosition(Vector2 screenPosition)
         {
@@ -78,33 +56,16 @@ namespace AnimGraph.Editor
 
     }
 
-    public class MySearchWindowProvider : ScriptableObject, ISearchWindowProvider
-    {
-        public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
-        {
-            // 创建搜索树条目
-            var entries = new List<SearchTreeEntry>
-                {
-                    new SearchTreeGroupEntry(new GUIContent("Create"), 0)
-                };
-
-            // 添加其他搜索树条目
-
-            return entries;
-        }
-
-        public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
-        {
-            // 处理选择条目的逻辑
-
-            return true;
-        }
-    }
-
     public class NodeTable {
+
         public static readonly Dictionary<Type, Type> EditorNode2Runtime = new Dictionary<Type, Type>()
         {
             {typeof(EditorNode_Mixer), typeof(Node_Mixer) },
+        };
+
+        public static readonly Dictionary<Type, Type> RuntimeNode2Editor = new Dictionary<Type, Type>()
+        {
+            {typeof(Node_Mixer), typeof(EditorNode_Mixer) },
         };
     }
 

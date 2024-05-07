@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -11,20 +12,25 @@ namespace AnimGraph
     {
         public string name_;
 
+        [SerializeField]
+        public List<ConnectionInfo> connections_ = new List<ConnectionInfo>();
+
+        [SerializeField]
         public List<AnimNodeBase> animNodes_ = new List<AnimNodeBase>();
 
+        [SerializeField]
         public List<DataNodeBase> dataNodes_ = new List<DataNodeBase>();
 
-        public Dictionary<int, int> animId2Index_ = new Dictionary<int, int>();
+        public Dictionary<int, AnimNodeBase> animId2Node_ = new Dictionary<int, AnimNodeBase>();
 
-        public Dictionary<int, int> dataId2Index_ = new Dictionary<int, int>();
+        public Dictionary<int, DataNodeBase> dataId2Node_ = new Dictionary<int, DataNodeBase>();
 
-        public int rootId_;
+        public int rootId_ = -1;
 
-        public Vector3 outPosition_ = Vector3.zero;
+        public Vector2 outPosition_ = Vector2.zero;
 
 
-        public AnimNodeBase rootNode_ => animNodes_[animId2Index_[rootId_]];
+        public AnimNodeBase rootNode_ => animNodes_[rootId_];
 
         public Node_SubGraph() : base()
         {
@@ -36,43 +42,54 @@ namespace AnimGraph
         {
             for(int i = 0; i < animNodes_.Count; i++)
             {
-                animId2Index_.Add(animNodes_[i].id_, i);
+                animId2Node_.Add(animNodes_[i].id_, animNodes_[i]);
             }
             for(int i = 0; i < dataNodes_.Count; i++)
             {
-                dataId2Index_.Add(dataNodes_[i].id_, i);
+                dataId2Node_.Add(dataNodes_[i].id_, dataNodes_[i]);
             }
         }
 
         public override void InitNode(Animator animator, PlayableGraph graph)
         {
             base.InitNode(animator, graph);
+            InitTable();
             animNodes_.ForEach(node =>
             {
-                if (!node.isGraph_)
-                {
-                    node.InitNode(animator, graph);
-                }
-                node.CreatePlayable(animator, graph);
+                node.InitNode(animator, graph);
             });
-            
-            InitConnection(animator, graph);
         }
 
         public void AddNode(GraphNodeBase node)
         {
             if (node.isAnim_)
             {
-                int id = animNodes_[-1].id_ + 1;
+                int id;
+                if (animNodes_.Count == 0)
+                {
+                    id = 0;
+                }
+                else
+                {
+                    id = animNodes_[^1].id_ + 1;
+                }
                 node.SetId(id);
-                animId2Index_.Add(id, animNodes_.Count);
+                animId2Node_.Add(id, (AnimNodeBase)node);
                 animNodes_.Add((AnimNodeBase)node);
             }
             else
             {
-                int id = dataNodes_[-1].id_ + 1;
+                int id;
+                if (dataNodes_.Count == 0)
+                {
+                    id = 0;
+                }
+                else
+                {
+                    id = dataNodes_[^1].id_ + 1;
+                }
                 node.SetId(id);
-                dataId2Index_.Add(id, dataNodes_.Count);
+                dataId2Node_.Add(id, (DataNodeBase)node);
                 dataNodes_.Add((DataNodeBase)node);
             }
         }
@@ -81,23 +98,31 @@ namespace AnimGraph
         {
             if (node.isAnim_)
             {
-                int index = animId2Index_[node.id_];
-                animNodes_.RemoveAt(index);
-                animId2Index_.Remove(node.id_);
-                for(int i = index; i < animNodes_.Count; i++)
-                {
-                    animId2Index_[animNodes_[i].id_] = i;
-                }
+                animNodes_.Remove((AnimNodeBase)node);
+                animId2Node_.Remove(node.id_);
             }
             else
             {
-                int index = dataId2Index_[node.id_];
-                dataNodes_.RemoveAt(index);
-                dataId2Index_.Remove(index);
-                for(int i = index; i < dataNodes_.Count; i++)
-                {
-                    dataId2Index_[dataNodes_[i].id_] = i;
-                }
+                dataNodes_.Remove((DataNodeBase)node);
+                dataId2Node_.Remove(node.id_);
+            }
+        }
+
+        public void AddConnection(ConnectionInfo connectionInfo)
+        {
+            connections_.Add(connectionInfo);
+        }
+
+        public void RemoveConnection(int targetId, int targetPort)
+        {
+            var connToRemove = connections_.FirstOrDefault(conn =>
+                    conn.targetId == targetId &&
+                    conn.targetPort == targetPort
+                );
+
+            if (connToRemove != null)
+            {
+                connections_.Remove(connToRemove);
             }
         }
 
@@ -118,6 +143,28 @@ namespace AnimGraph
         public override void InitConnection(Animator animator, PlayableGraph graph)
         {
             base.InitConnection(animator, graph);
+            foreach(var connection in connections_)
+            {
+                GraphNodeBase source;
+                GraphNodeBase target;
+                if (connection.sourceIsAnim)
+                {
+                    source = animId2Node_[connection.sourceId];
+                } else
+                {
+                    source = dataId2Node_[connection.sourceId];
+                }
+                if (connection.targetIsAnim)
+                {
+                    target = animId2Node_[connection.targetId];
+                }
+                else
+                {
+                    target = dataId2Node_[connection.targetId];
+                }
+                target.input_[connection.targetPort].node = source;
+            }
+
             rootNode_.InitConnection(animator, graph);
             outputPlayable_.AddInput(rootNode_.outputPlayable_, 0, 1f);
         }

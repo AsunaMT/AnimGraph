@@ -10,15 +10,17 @@ namespace AnimGraph
     [Serializable]
     public class Node_SubGraph : AnimBehaviourNodeBase, IGraphNode
     {
-        public string name_;
+        public string name_ = "SubGraph";
 
         [SerializeField]
         public List<ConnectionInfo> connections_ = new List<ConnectionInfo>();
 
         [SerializeField]
+        [SerializeReference]
         public List<AnimNodeBase> animNodes_ = new List<AnimNodeBase>();
 
         [SerializeField]
+        [SerializeReference]
         public List<DataNodeBase> dataNodes_ = new List<DataNodeBase>();
 
         public Dictionary<int, AnimNodeBase> animId2Node_ = new Dictionary<int, AnimNodeBase>();
@@ -32,21 +34,38 @@ namespace AnimGraph
 
         public AnimNodeBase rootNode_ => animNodes_[rootId_];
 
+        public string Name => name_;
+
         public Node_SubGraph() : base()
         {
             input_ = null;
             isGraph_ = true;
         }
 
+        public Node_SubGraph(string name) : base()
+        {
+            input_ = null;
+            isGraph_ = true;
+            name_ = name;
+        }
+
         public void InitTable()
         {
-            for(int i = 0; i < animNodes_.Count; i++)
+            if(animNodes_ != null)
             {
-                animId2Node_.Add(animNodes_[i].id_, animNodes_[i]);
+                animId2Node_ = new Dictionary<int, AnimNodeBase>();
+                for (int i = 0; i < animNodes_.Count; i++)
+                {
+                    animId2Node_.Add(animNodes_[i].id_, animNodes_[i]);
+                }
             }
-            for(int i = 0; i < dataNodes_.Count; i++)
+            if(dataNodes_ != null)
             {
-                dataId2Node_.Add(dataNodes_[i].id_, dataNodes_[i]);
+                dataId2Node_ = new Dictionary<int, DataNodeBase>();
+                for (int i = 0; i < dataNodes_.Count; i++)
+                {
+                    dataId2Node_.Add(dataNodes_[i].id_, dataNodes_[i]);
+                }
             }
         }
 
@@ -58,6 +77,7 @@ namespace AnimGraph
             {
                 node.InitNode(animator, graph);
             });
+            ConnectGraph();
         }
 
         public void AddNode(GraphNodeBase node)
@@ -106,6 +126,17 @@ namespace AnimGraph
                 dataNodes_.Remove((DataNodeBase)node);
                 dataId2Node_.Remove(node.id_);
             }
+            for (int i = 0; i < connections_.Count;)
+            {
+                if (connections_[i].ContainsNode(node.id_, node.isAnim_))
+                {
+                    connections_.RemoveAt(i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
         }
 
         public void AddConnection(ConnectionInfo connectionInfo)
@@ -140,17 +171,17 @@ namespace AnimGraph
             
         }
 
-        public override void InitConnection(Animator animator, PlayableGraph graph)
+        void ConnectGraph()
         {
-            base.InitConnection(animator, graph);
-            foreach(var connection in connections_)
+            foreach (var connection in connections_)
             {
                 GraphNodeBase source;
                 GraphNodeBase target;
                 if (connection.sourceIsAnim)
                 {
                     source = animId2Node_[connection.sourceId];
-                } else
+                }
+                else
                 {
                     source = dataId2Node_[connection.sourceId];
                 }
@@ -162,11 +193,37 @@ namespace AnimGraph
                 {
                     target = dataId2Node_[connection.targetId];
                 }
-                target.input_[connection.targetPort].node = source;
+                source.ConnectTo(target, connection.targetPort);
             }
+        }
 
+        public override void InitConnection(Animator animator, PlayableGraph graph)
+        {
+            base.InitConnection(animator, graph);
             rootNode_.InitConnection(animator, graph);
             outputPlayable_.AddInput(rootNode_.outputPlayable_, 0, 1f);
+        }
+
+        public AnimNodeBase GetAnimNode(int id)
+        {
+            return animId2Node_[id];
+        }
+
+        public DataNodeBase GetDataNode(int id)
+        {
+            return dataId2Node_[id];
+        }
+
+        public GraphNodeBase GetNode(bool isAnim, int id)
+        {
+            if(isAnim)
+            {
+                return GetAnimNode(id);
+            }
+            else
+            {
+                return GetDataNode(id);
+            }
         }
     }
 }

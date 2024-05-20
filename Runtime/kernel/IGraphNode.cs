@@ -8,6 +8,6 @@ namespace AnimGraph
 {
     public interface IGraphNode
     {
-
+        public string Name { get; }
     }
 }

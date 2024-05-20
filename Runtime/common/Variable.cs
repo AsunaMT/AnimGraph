@@ -8,9 +8,10 @@ using UnityEngine;
 
 namespace AnimGraph
 {
+
     [Serializable]
     [StructLayout(LayoutKind.Explicit)]
-    public class Variable
+    public class Value
     {
         [FieldOffset(0)][SerializeField]
         private bool boolVal_;
@@ -25,22 +26,22 @@ namespace AnimGraph
         [SerializeField]
         private string stringVal_;
 
-        public Variable(bool boolVal)
+        public Value(bool boolVal)
         {
             boolVal_ = boolVal;
         }
 
-        public Variable(int intVal)
+        public Value(int intVal)
         {
             intVal_ = intVal;
         }
 
-        public Variable(float floatVal)
+        public Value(float floatVal)
         {
             floatVal_ = floatVal;
         }
 
-        public Variable(string stringVal)
+        public Value(string stringVal)
         {
             stringVal_ = stringVal;
         }
@@ -83,6 +84,77 @@ namespace AnimGraph
         public void SetString(string val)
         {
             stringVal_ = val;
+        }
+    }
+
+
+    [Serializable]
+    public enum VarType
+    {
+        EBool,
+        EInt,
+        EFloat,
+        EString,
+    }
+
+
+    [Serializable]
+    public class Variable
+    {
+        public VarType type;
+
+        public string name;
+
+        public Value value;
+
+        public Variable(string name, bool value)
+        {
+            this.type = VarType.EBool;
+            this.name = name;
+            this.value = new Value(value);
+        }
+
+        public Variable(string name, int value)
+        {
+            this.type = VarType.EInt;
+            this.name = name;
+            this.value = new Value(value);
+        }
+        public Variable(string name, float value)
+        {
+            this.type = VarType.EFloat;
+            this.name = name;
+            this.value = new Value(value);
+        }
+
+        public bool GetBool()
+        {
+            return value.Bool();
+        }
+
+        public int GetInt()
+        {
+            return value.Int();
+        }
+
+        public float GetFloat() 
+        { 
+            return value.Float();
+        }
+
+        public void SetBool(bool val)
+        {
+            value.SetBool(val);
+        }
+
+        public void SetInt(int val)
+        {
+            value.SetInt(val);
+        }
+
+        public void SetFloat(float val)
+        {
+            value.SetFloat(val);
         }
     }
 }

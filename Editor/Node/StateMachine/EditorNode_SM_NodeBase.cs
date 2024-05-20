@@ -1,5 +1,10 @@
-﻿using UnityEditor;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.UIElements;
 
 namespace AnimGraph.Editor
 {
@@ -9,35 +14,34 @@ namespace AnimGraph.Editor
 
         internal abstract List<Transition> Transitions { get; }
 
-        private const float CONNECTION_HANDLER_WIDTH = 12;
+        protected const float CONNECTION_HANDLER_WIDTH = 12;
 
-        IStateMachinePart entity_;
-
-        StateMachineGraphView smGraphView => (StateMachineGraphView)graphView_;
-
-        protected EditorNode_SM_NodeBase(IStateMachinePart entity, StateMachineGraphView graphView) : base()
+        public State state_;
+        protected StateMachineGraphView smGraphView => (StateMachineGraphView)graphView_;
+        protected Node_StateMachine machine_ => (Node_StateMachine)graphView_?.GraphAsset;
+        protected EditorNode_SM_NodeBase(State state, StateMachineGraphView graphView) : base()
         {
-            entity_ = entity;
+            state_ = state;
             graphView_ = graphView;
             // Styles
             mainContainer.style.backgroundColor = new Color(45 / 255f, 45 / 255f, 45 / 255f, 1.0f);
             mainContainer.style.justifyContent = Justify.Center;
-            mainContainer.style.borderTopWidth = _CONNECTION_HANDLER_WIDTH;
-            mainContainer.style.borderBottomWidth = _CONNECTION_HANDLER_WIDTH;
-            mainContainer.style.borderLeftWidth = _CONNECTION_HANDLER_WIDTH;
-            mainContainer.style.borderRightWidth = _CONNECTION_HANDLER_WIDTH;
+            mainContainer.style.borderTopWidth = CONNECTION_HANDLER_WIDTH;
+            mainContainer.style.borderBottomWidth = CONNECTION_HANDLER_WIDTH;
+            mainContainer.style.borderLeftWidth = CONNECTION_HANDLER_WIDTH;
+            mainContainer.style.borderRightWidth = CONNECTION_HANDLER_WIDTH;
             var titleLabel = titleContainer.Q<Label>(name: "title-label");
             titleLabel.style.maxWidth = 150;
             titleLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
             titleLabel.style.whiteSpace = WhiteSpace.Normal;
 
             // Callbacks
-            mainContainer.AddManipulator(new StateTransitionEdgeConnector(GraphAsset));
+            mainContainer.AddManipulator(new StateTransitionEdgeConnector(graphView.stateMachine_));
         }
 
-        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+/*        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
-        }
+        }*/
 
 
         #region Transitions // TODO OPTIMIZABLE
@@ -48,16 +52,15 @@ namespace AnimGraph.Editor
         private readonly List<StateTransitionEdge> _inputTransitions = new List<StateTransitionEdge>();
 
 
-        public virtual StateTransitionEdge AddTransition(StateGraphEditorNode destNode, out bool dataDirty)
+        public virtual StateTransitionEdge AddTransition(EditorNode_SM_State destNode, out bool dataDirty)
         {
             var edge = ViewOnlyConnect(destNode);
 
             // Add transition data
-            var transitionData = Transitions.FirstOrDefault(t => t.DestStateGuid.Equals(destNode.Guid));
+            var transitionData = Transitions.FirstOrDefault(t => t.nextState.Equals(destNode.state_.id));
             if (transitionData == null)
             {
-                transitionData = new Transition(destNode.Guid);
-                Transitions.Add(transitionData);
+                state_.AddTransition(destNode.state_);
                 dataDirty = true;
             }
             else
@@ -68,14 +71,13 @@ namespace AnimGraph.Editor
             return edge;
         }
 
-        public StateTransitionEdge RemoveTransition(StateGraphEditorNode destNode)
+        public StateTransitionEdge RemoveTransition(EditorNode_SM_State destNode)
         {
             var removedEdge = ViewOnlyDisconnect(destNode);
             if (removedEdge != null)
             {
                 // Remove transition data
-                var index = Transitions.FindIndex(t => t.DestStateGuid.Equals(destNode.Guid));
-                Transitions.RemoveAt(index);
+                state_.RemoveTransition(destNode.state_.id);
             }
 
             return removedEdge;
@@ -91,8 +93,8 @@ namespace AnimGraph.Editor
                 }
 
                 // Remove transition data
-                var index = Transitions.FindIndex(t => t.DestStateGuid.Equals(destNode.Guid));
-                Transitions.RemoveAt(index);
+
+                state_.RemoveTransition(destNode.state_.id);
 
                 return true;
             }
@@ -100,7 +102,7 @@ namespace AnimGraph.Editor
             return false;
         }
 
-        public StateTransitionEdge ViewOnlyConnect(StateGraphEditorNode destNode)
+        public StateTransitionEdge ViewOnlyConnect(EditorNode_SM_State destNode)
         {
             var edge = OutputTransitions.FirstOrDefault(e => e.IsConnection(this, destNode));
 
@@ -121,7 +123,8 @@ namespace AnimGraph.Editor
             }
 
             // New transition
-            edge = new StateTransitionEdge(GraphAsset, this, destNode);
+            edge = new StateTransitionEdge(smGraphView.stateMachine_, this, destNode);
+            edge.EditTransition = smGraphView.EditTransition;
             edge.AddDirection(StateTransitionEdgeDirections.Dir_0_1);
             edge.IsEntryEdge = false;
 
@@ -131,7 +134,7 @@ namespace AnimGraph.Editor
             return edge;
         }
 
-        public StateTransitionEdge ViewOnlyDisconnect(StateGraphEditorNode destNode)
+        public StateTransitionEdge ViewOnlyDisconnect(EditorNode_SM_State destNode)
         {
             StateTransitionEdge removedEdge = null;
             for (int i = 0; i < OutputTransitions.Count; i++)

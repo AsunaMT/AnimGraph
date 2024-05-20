@@ -18,10 +18,119 @@ MonoBehaviour:
     id_: 0
     input_: []
     position_: {x: 0, y: 0}
-    name_: 
+    name_: AnimGraph
     connections_: []
-    animNodes_: []
+    animNodes_:
+    - rid: 3257087012595040261
     dataNodes_: []
-    rootId_: -1
-    outPosition_: {x: 0, y: 0}
+    rootId_: 0
+    outPosition_: {x: 424.5, y: 153.49998}
   varList_: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 3257087012595040261
+      type: {class: Node_StateMachine, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 95.599976, y: -74.50798}
+        sm_:
+          name: StateMachine
+          entry: 0
+          entryPosition: {x: -18, y: 125}
+          states:
+          - id: 0
+            name: run
+            entity:
+              isAnim_: 1
+              isGraph_: 1
+              id_: 0
+              input_: []
+              position_: {x: 245, y: 125}
+              name_: run
+              connections_: []
+              animNodes_: []
+              dataNodes_: []
+              rootId_: -1
+              outPosition_: {x: 0, y: 0}
+            position: {x: 245, y: 125}
+            exitTransitions:
+            - id: 0
+              previousState: 0
+              nextState: 1
+              interruptType: 0
+              exitTime: 0
+              transTime: 0
+              entity:
+                isAnim_: 0
+                isGraph_: 1
+                id_: 0
+                input_: []
+                position_: {x: 0, y: 0}
+                val_:
+                  boolVal_: 0
+                  intVal_: 0
+                  floatVal_: 0
+                  stringVal_: 
+                valType_: 3
+                name_: run->walk
+                connections_: []
+                nodes_: []
+                rootId_: -1
+                outPosition_: {x: 0, y: 0, z: 0}
+              blendCurve:
+                serializedVersion: 2
+                m_Curve: []
+                m_PreInfinity: 2
+                m_PostInfinity: 2
+                m_RotationOrder: 4
+          - id: 1
+            name: walk
+            entity:
+              isAnim_: 1
+              isGraph_: 1
+              id_: 0
+              input_: []
+              position_: {x: 531, y: 191}
+              name_: walk
+              connections_: []
+              animNodes_: []
+              dataNodes_: []
+              rootId_: -1
+              outPosition_: {x: 0, y: 0}
+            position: {x: 531, y: 191}
+            exitTransitions:
+            - id: 0
+              previousState: 1
+              nextState: 0
+              interruptType: 0
+              exitTime: 0
+              transTime: 0
+              entity:
+                isAnim_: 0
+                isGraph_: 1
+                id_: 0
+                input_: []
+                position_: {x: 0, y: 0}
+                val_:
+                  boolVal_: 0
+                  intVal_: 0
+                  floatVal_: 0
+                  stringVal_: 
+                valType_: 3
+                name_: walk->run
+                connections_: []
+                nodes_: []
+                rootId_: -1
+                outPosition_: {x: 0, y: 0, z: 0}
+              blendCurve:
+                serializedVersion: 2
+                m_Curve: []
+                m_PreInfinity: 2
+                m_PostInfinity: 2
+                m_RotationOrder: 4
+        curState: 0
+        curStateTime: 0

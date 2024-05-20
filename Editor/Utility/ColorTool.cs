@@ -14,7 +14,7 @@ namespace AnimGraph.Editor
             { PinType.EBool, Color.red },
             { PinType.EInt, Color.green },
             { PinType.EFloat, Color.blue },
-            //{ typeof(StateMachineEntryEditorNode), new Color(30 / 255f, 110 / 255f, 55 / 255f) },
+            //{ typeof(StateMachineEntryEditorNode), new Color(30 / 255f, 110 / 255f, 55 / 255f) },9
         };
 
         public static Color GetColor(PinType type)

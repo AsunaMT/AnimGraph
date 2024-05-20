@@ -9,7 +9,7 @@ using UnityEngine.Playables;
 namespace AnimGraph
 {
     [Serializable]
-    public class AnimBehaviourNodeBase : AnimNodeBase
+    public abstract class AnimBehaviourNodeBase : AnimNodeBase
     {
         public Playable mainPlayable_;
         public BehaviourAdapter adapter_;

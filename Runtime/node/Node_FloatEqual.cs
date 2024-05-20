@@ -3,10 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
+using UnityEngine;
 
-namespace Assets.AnimGraph.Runtime.node
+namespace AnimGraph
 {
-    internal class Node_FloatEqual
+    public class Node_FloatEqual : OperatorNodeBase
     {
+        public Node_FloatEqual()
+        {
+#if UNITY_EDITOR
+            operatorName = "==";
+#endif
+            val_ = new Value(0f);
+            valType_ = PinType.EBool;
+            input_ = new List<NodePin>()
+            {
+                new NodePin()
+                {
+                    index = 0,
+                    name = "left",
+                    pinTye = PinType.EFloat,
+                },
+                new NodePin()
+                {
+                    index = 1,
+                    name = "right",
+                    pinTye = PinType.EFloat,
+                }
+            };
+        }
+
+        public override void Execute()
+        {
+            float left = input_[0].Vaild ? input_[0].GetFloat() : 0f;
+            float right = input_[1].Vaild ? input_[1].GetFloat() : 0f;
+            val_.SetBool(Mathf.Approximately(left, right));
+        }
     }
 }

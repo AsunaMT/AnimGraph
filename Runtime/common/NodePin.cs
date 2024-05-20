@@ -44,17 +44,17 @@ namespace AnimGraph
 
         public bool GetBool()
         {
-            return ((DataNodeBase)node).val_.Bool();
+            return ((DataNodeBase)node).GetBool();
         }
 
         public int GetInt()
         {
-            return ((DataNodeBase)node).val_.Int();
+            return ((DataNodeBase)node).GetInt();
         }
 
         public float GetFloat()
         {
-            return ((DataNodeBase)node).val_.Float();
+            return ((DataNodeBase)node).GetFloat();
         }
 
         public string GetString()

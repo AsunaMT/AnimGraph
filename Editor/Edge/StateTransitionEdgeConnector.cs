@@ -64,10 +64,10 @@ namespace AnimGraph.Editor
                 }
             }
 
-            _fromNode = target as StateGraphEditorNode;
+            _fromNode = target as EditorNode_SM_NodeBase;
             if (_fromNode == null)
             {
-                _fromNode = target.GetFirstAncestorOfType<StateGraphEditorNode>();
+                _fromNode = target.GetFirstAncestorOfType<EditorNode_SM_NodeBase>();
                 if (_fromNode == null)
                 {
                     return;
@@ -75,6 +75,7 @@ namespace AnimGraph.Editor
             }
 
             _dragEdge = new StateTransitionEdge(_graphAsset, _fromNode, null);
+            _dragEdge.EditTransition = _graphView.EditTransition;
             _dragEdge.SetEnabled(false);
             _graphView.AddElement(_dragEdge);
 
@@ -103,7 +104,7 @@ namespace AnimGraph.Editor
             }
 
             var compatibleNodes = _graphView.GetCompatibleNodes(_dragEdge.ConnectedNode0);
-            StateGraphEditorNode destNode = null;
+            EditorNode_SM_State destNode = null;
             foreach (var node in compatibleNodes)
             {
                 if (node.worldBound.Contains(e.mousePosition))

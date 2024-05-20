@@ -9,7 +9,7 @@ using UnityEngine.Playables;
 namespace AnimGraph
 {
     [Serializable]
-    public class AnimNodeBase : GraphNodeBase
+    public abstract class AnimNodeBase : GraphNodeBase
     {
         public Playable outputPlayable_;
 
@@ -20,12 +20,12 @@ namespace AnimGraph
 
         public override void InitNode(Animator animator, PlayableGraph graph)
         {
-            base.InitNode(animator, graph);
+
         }
 
         public override void InitConnection(Animator animator, PlayableGraph graph)
         {
-            base.InitConnection(animator, graph);
+
         }
 
         public virtual void CreatePlayable(Animator animator, PlayableGraph graph)
@@ -47,5 +47,7 @@ namespace AnimGraph
         {
             outputPlayable_.SetTime(time);
         }
+
+        
     }
 }

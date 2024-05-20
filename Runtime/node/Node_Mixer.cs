@@ -48,13 +48,13 @@ namespace AnimGraph
         public override void CreatePlayable(Animator animator, PlayableGraph graph)
         {
             base.CreatePlayable(animator, graph);
-            mainPlayable_ = AnimationMixerPlayable.Create(graph, 2);
+            mainPlayable_ = AnimationMixerPlayable.Create(graph);
             outputPlayable_.AddInput(mainPlayable_, 0, 1f);
         }
 
         public override void Execute()
         {
-            weight_ = input_[2].Vaild ? weight_ : input_[2].GetFloat();
+            weight_ = input_[2].Vaild ? input_[2].GetFloat() : weight_;
 
             mixer_.SetInputWeight(0, weight_);
             mixer_.SetInputWeight(1, 1f - weight_);
@@ -72,17 +72,17 @@ namespace AnimGraph
             string shouldNode ="";
             int index = 0;
             bool error = false;
-            if (error = !input_[0].Vaild || input_[0].node.isAnim_)
+            if (error = !input_[0].Vaild || !input_[0].node.isAnim_)
             {
                 index = 0;
                 shouldNode = "AnimNode";
             }
-            else if (error = !input_[1].Vaild || input_[1].node.isAnim_)
+            else if (error = !input_[1].Vaild || !input_[1].node.isAnim_)
             {
                 index = 1;
                 shouldNode = "AnimNode";
             }
-            else if (error = input_[2].Vaild && !input_[1].node.isAnim_)
+            else if (error = input_[2].Vaild && input_[1].node.isAnim_)
             {
                 index = 2;
                 shouldNode = "DataNode";
@@ -93,11 +93,9 @@ namespace AnimGraph
                 return;
             }
 #endif
-
-            input_[0].GetAnim().InitConnection(animator, graph);
-            input_[1].GetAnim().InitConnection(animator, graph);
-            mixer_.AddInput(input_[0].GetPlayable(), 0, 1f);
-            mixer_.AddInput(input_[1].GetPlayable(), 0, 0f);
+            weight_ = input_[2].Vaild ? input_[2].GetFloat() : weight_;
+            mixer_.AddInput(input_[0].GetPlayable(), 0, 1 - weight_);
+            mixer_.AddInput(input_[1].GetPlayable(), 0, weight_);
         }
     }
 }

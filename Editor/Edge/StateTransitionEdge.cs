@@ -5,13 +5,13 @@ using UnityEngine.UIElements;
 
 namespace AnimGraph.Editor
 {
-    public sealed class StateTransitionEdge : GraphElement, IInspectable<StateTransitionEdge>, IEdgePointProvider
+    public sealed class StateTransitionEdge : GraphElement, IInspectable, IEdgePointProvider
     {
         public StateTransitionEdgeDirections EdgeDirections => EdgeControl.EdgeDirections;
 
         public bool IsEntryEdge { get; internal set; }
 
-        internal AnimationGraphAsset GraphAsset { get; }
+        internal Node_StateMachine stateMachine_ { get; }
 
         public int ConnectionCount
         {
@@ -30,13 +30,14 @@ namespace AnimGraph.Editor
 
         public StateTransitionEdgeControl EdgeControl { get; }
 
+        public WantsToEditTransition EditTransition;
 
         private Vector2 _dragPoint;
 
 
-        public StateTransitionEdge(AnimationGraphAsset graphAsset, EditorNode_SM_NodeBase node0, EditorNode_SM_NodeBase node1)
+        public StateTransitionEdge(Node_StateMachine graphAsset, EditorNode_SM_NodeBase node0, EditorNode_SM_NodeBase node1)
         {
-            GraphAsset = graphAsset;
+            stateMachine_ = graphAsset;
             ConnectedNode0 = node0;
             ConnectedNode1 = node1;
             _dragPoint = ConnectedNode0.worldBound.center;
@@ -49,7 +50,7 @@ namespace AnimGraph.Editor
             style.height = 2; // For debugging
             AddToClassList("edge");
 
-            var edgeStyleSheet = Resources.Load<StyleSheet>("AnimationGraph/StateTransitionEdge");
+            var edgeStyleSheet = Resources.Load<StyleSheet>("StateTransitionEdge");
             styleSheets.Add(edgeStyleSheet);
 
             EdgeControl = new StateTransitionEdgeControl(this);
@@ -103,7 +104,7 @@ namespace AnimGraph.Editor
             _dragPoint = mousePosition;
         }
 
-        public void SetConnection(int index, StateGraphEditorNode node)
+        public void SetConnection(int index, EditorNode_SM_NodeBase node)
         {
             switch (index)
             {
@@ -125,12 +126,12 @@ namespace AnimGraph.Editor
             }
         }
 
-        public bool IsConnection(StateGraphEditorNode a, StateGraphEditorNode b)
+        public bool IsConnection(EditorNode_SM_NodeBase a, EditorNode_SM_NodeBase b)
         {
             return (ConnectedNode0 == a && ConnectedNode1 == b) || (ConnectedNode0 == b && ConnectedNode1 == a);
         }
 
-        public bool TryGetConnectedNode(StateGraphEditorNode node, out StateGraphEditorNode connectedNode)
+        public bool TryGetConnectedNode(EditorNode_SM_NodeBase node, out EditorNode_SM_NodeBase connectedNode)
         {
             if (node == ConnectedNode0)
             {
@@ -186,10 +187,10 @@ namespace AnimGraph.Editor
 
         #region Inspector
 
-        public IInspector<StateTransitionEdge> GetInspector()
+        public InspectorBase GetInspector()
         {
-            var inspector = new StateTransitionEdgeInspector(GraphAsset.Parameters,
-                AddConditionElement, RemoveConditionElement, IndicateTransition, DeleteTransition);
+            var inspector = new Inspector_Transition(
+                AddConditionElement, RemoveConditionElement, EditTransition, DeleteTransition);
             inspector.SetTarget(this);
 
             return inspector;
@@ -206,7 +207,7 @@ namespace AnimGraph.Editor
         {
         }
 
-        private void IndicateTransition(StateGraphEditorNode fromNode, StateGraphEditorNode destNode)
+/*        private void IndicateTransition(EditorNode_SM_NodeBase fromNode, EditorNode_SM_NodeBase destNode)
         {
             if (fromNode == ConnectedNode0 && destNode == ConnectedNode1)
             {
@@ -223,11 +224,11 @@ namespace AnimGraph.Editor
             }
 
             throw new ArgumentException("Node not connected.");
-        }
+        }*/
 
-        private void DeleteTransition(StateGraphEditorNode fromNode, StateGraphEditorNode destNode)
+        private void DeleteTransition(EditorNode_SM_NodeBase fromNode, EditorNode_SM_NodeBase destNode)
         {
-            var edge = fromNode.RemoveTransition(destNode);
+            var edge = fromNode.RemoveTransition((EditorNode_SM_State)destNode);
             if (!edge.IsConnection(fromNode, destNode))
             {
                 var graph = GetFirstAncestorOfType<StateMachineGraphView>();

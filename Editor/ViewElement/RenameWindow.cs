@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace GBG.AnimationGraph.Editor.ViewElement
+namespace AnimGraph.Editor
 {
     public class RenameWindow : EditorWindow
     {

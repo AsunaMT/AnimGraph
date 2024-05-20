@@ -1,5 +1,4 @@
-﻿using GBG.AnimationGraph.Node;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -35,10 +34,11 @@ namespace AnimGraph.Editor
         private void OnMouseDown(MouseDownEvent e)
         {
             _onClicked(e);
+            _onClicked?.Invoke(e);
         }
     }
 
-    public abstract partial class EditorNodeBase : Node
+    public abstract partial class EditorNodeBase : Node, IInspectable
     {
         /// <summary>
         /// By default this visual element will serve as a divider under the title container.
@@ -49,7 +49,7 @@ namespace AnimGraph.Editor
 
         public GraphNodeBase node_;
 
-        public List<GraphPort> input_;
+        public List<GraphPort> input_ = new List<GraphPort>();
 
         public GraphPort outPut_;
 
@@ -75,7 +75,7 @@ namespace AnimGraph.Editor
             this.AddManipulator(new GraphEditorNodeClickManipulator(OnClicked));
         }
 
-        protected EditorNodeBase(GraphNodeBase node, GraphViewBase grapView)
+        protected EditorNodeBase(GraphNodeBase node, GraphViewBase grapView, Type outputType)
         {
             graphView_ = grapView;
             base.titleButtonContainer.Clear();
@@ -93,16 +93,28 @@ namespace AnimGraph.Editor
             string name = node.GetType().Name;
             title = name.Substring(name.IndexOf('_') + 1);
             //init port
-            for (int i = 0; i < node_.input_.Count; i++)
+            if(node_.input_ != null)
             {
-                var inputPort = InstantiatePort(Direction.Input, typeof(Playable));
-                inputPort.portName = node_.input_[i].name;
-                inputPort.portColor = ColorTool.GetColor(node_.input_[i].pinTye);
-                inputPort.OnConnected += OnPortConnected;
-                inputPort.OnDisconnected += OnPortDisconnected;
-                inputContainer.Add(inputPort);
+                for (int i = 0; i < node_.input_.Count; i++)
+                {
+                    Type inputType = node_.input_[i].pinTye switch
+                    {
+                        PinType.EAnim => typeof(Playable),
+                        PinType.EBool => typeof(bool),
+                        PinType.EInt => typeof(int),
+                        PinType.EFloat => typeof(float),
+                        _ => typeof(Playable),
+                    };
+                    var inputPort = InstantiatePort(Direction.Input, inputType);
+                    inputPort.portName = node_.input_[i].name;
+                    inputPort.portColor = ColorTool.GetColor(node_.input_[i].pinTye);
+                    //inputPort.OnConnected += OnPortConnected;
+                    //inputPort.OnDisconnected += OnPortDisconnected;
+                    inputContainer.Add(inputPort);
+                    input_.Add(inputPort);
+                }
             }
-            outPut_ = InstantiatePort(Direction.Output, typeof(Playable));
+            outPut_ = InstantiatePort(Direction.Output, outputType);
             PinType outType;
             if (node.isAnim_)
             {
@@ -119,6 +131,16 @@ namespace AnimGraph.Editor
 
             RefreshPorts();
             RefreshExpandedState();
+        }
+
+        public void ActivateConnectAble()
+        {
+            for (int i = 0; i < input_.Count; i++)
+            {
+                var inputPort = input_[i];
+                inputPort.OnConnected += OnPortConnected;
+                inputPort.OnDisconnected += OnPortDisconnected;
+            }
         }
 
         public override void SetPosition(Rect newPos)
@@ -148,7 +170,9 @@ namespace AnimGraph.Editor
 
         protected virtual void OnPortConnected(Edge edge)
         {
+            if(edge.output == null) return;
             var node = (EditorNodeBase)edge.output.node;
+            if (node == null) return;
             int index = inputContainer.IndexOf(edge.input);
             if (node != null)
             {
@@ -196,6 +220,11 @@ namespace AnimGraph.Editor
             {
                 OnDoubleClicked?.Invoke(this);
             }
+        }
+
+        public virtual InspectorBase GetInspector()
+        {
+            return null;
         }
 
         #endregion

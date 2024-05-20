@@ -13,9 +13,37 @@ namespace AnimGraph
     [Serializable]
     public class StateMachineCore
     {
-        public string name;
-        public int entry;
+        public string name = "StateMachine";
+        public int entry = -1;
+#if UNITY_EDITOR
+        public Vector2 entryPosition;
+#endif
         public List<State> states = new List<State>();
+
+        [NonSerialized]
+        public int stateNextId_ = 0;
+
+        public Dictionary<int, State> stateTable_ = new Dictionary<int, State>();
+
+        public void InitTable()
+        {
+            if(states != null)
+            {
+                foreach(var state in states)
+                {
+                    if (stateTable_.ContainsKey(state.id))
+                    {
+                        stateTable_[state.id] = state;
+                    }
+                    else
+                    {
+                        stateTable_.Add(state.id, state);
+                    }
+                    stateNextId_ = state.id + 1;
+                    state.InitTable();
+                }
+            }
+        }
     }
 
     [Serializable]
@@ -26,8 +54,13 @@ namespace AnimGraph
         public int curState;
         public float curStateTime;
         public List<TransitionBetweenStates> runningTransitions_ = new List<TransitionBetweenStates>();
+
         public Dictionary<int, float> activeStatesAndWeight_ = new Dictionary<int, float>();
         public AnimationMixerPlayable mixer_ => (AnimationMixerPlayable)mainPlayable_;
+
+        public State entryState => sm_.stateTable_[sm_.entry];
+
+        public string Name => sm_?.name;
 
         public Node_StateMachine() : base()
         {
@@ -37,6 +70,7 @@ namespace AnimGraph
         public override void InitNode(Animator animator, PlayableGraph graph)
         {
             base.InitNode(animator, graph);
+            sm_.InitTable();
             foreach (var state in sm_.states)
             {
                 state.entity.InitNode(animator, graph);
@@ -45,6 +79,12 @@ namespace AnimGraph
                     transition.entity.InitNode(animator, graph);
                 }
             }
+            curState = sm_.entry;
+        }
+
+        public void InitTable()
+        {
+            sm_.InitTable();
         }
 
         public override void CreatePlayable(Animator animator, PlayableGraph graph)
@@ -80,6 +120,7 @@ namespace AnimGraph
 
             if (sm_ == null || sm_.states.Count == 0) return;
 
+            curStateTime += Time.deltaTime;
             CalcWeight();
             Transition transition = CheckTransition();
             if (transition != null)
@@ -104,7 +145,7 @@ namespace AnimGraph
 
         void CalcWeight()
         {
-            if(runningTransitions_.Count < 1)
+            if (runningTransitions_.Count < 1)
             {
                 return;
             }
@@ -118,6 +159,8 @@ namespace AnimGraph
                     mixer_.SetInputWeight(activeState, 0f);
                 }
                 mixer_.SetInputWeight(main.transition.nextState, 1f);
+                curState = main.transition.nextState;
+                curStateTime = 0f;
                 runningTransitions_.Clear();
                 activeStatesAndWeight_.Clear();
                 return;
@@ -170,16 +213,16 @@ namespace AnimGraph
                 switch (trans.interruptType)
                 {
                     case InterruptType.Previous:
-                        res = sm_.states[trans.previousState].CheckTransition();
+                        res = sm_.states[trans.previousState].CheckTransition(curStateTime);
                         break;
                     case InterruptType.Next:
-                        res = sm_.states[trans.nextState].CheckTransition();
+                        res = sm_.states[trans.nextState].CheckTransition(curStateTime);
                         break;
                     case InterruptType.PreviousThenNext:
-                        res = sm_.states[trans.previousState].CheckTransition() ?? sm_.states[trans.nextState].CheckTransition();
+                        res = sm_.states[trans.previousState].CheckTransition(curStateTime) ?? sm_.states[trans.nextState].CheckTransition(curStateTime);
                         break;
                     case InterruptType.NextThenPrevious:
-                        res = sm_.states[trans.nextState].CheckTransition() ?? sm_.states[trans.previousState].CheckTransition();
+                        res = sm_.states[trans.nextState].CheckTransition(curStateTime) ?? sm_.states[trans.previousState].CheckTransition(curStateTime);
                         break;
                     default:
                         res = null;
@@ -188,9 +231,33 @@ namespace AnimGraph
             }
             else
             {
-                res = sm_.states[curState].CheckTransition();
+                res = sm_.states[curState].CheckTransition(curStateTime);
             }
             return res;
+        }
+
+        public void AddTransition(State fromState, State destState)
+        {
+            Transition transition = new Transition()
+            {
+                previousState = fromState.id,
+                nextState = destState.id,
+                entity = new TransitionEntity(string.Format("{0}->{1}", fromState.name, destState.name)),
+            };
+        }
+
+        public State CreateState()
+        {
+            State state = new State();
+            state.id = sm_.stateNextId_++;
+            sm_.states.Add(state);
+            sm_.stateTable_.Add(state.id, state);
+            return state;
+        }
+
+        public State GetState(int id)
+        {
+            return sm_.stateTable_[id];
         }
     }
 }

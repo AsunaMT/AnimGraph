@@ -18,60 +18,133 @@ namespace AnimGraph.Editor
         public Node_SubGraph graph => (Node_SubGraph)GraphAsset;
 
         public Dictionary<GraphNodeBase, EditorNodeBase> runtimeNode2Editor_ = new Dictionary<GraphNodeBase, EditorNodeBase>();
-        public SubGraphView(Node_SubGraph graphAsset, VisualElement container)
+
+        public List<Variable> varList_;
+        public SubGraphView(Node_SubGraph graphAsset, VisualElement container, List<Variable> varList)
             : base(graphAsset, container)
         {
+            varList_ = varList ?? new List<Variable>();
             SetupContextMenu();
-
+            graphAsset.InitTable();
             // Root node
             PoseOutputNode = new EditorNode_AnimOutput(graphAsset);
             //PoseOutputNode.SetPosition(new Rect(graph.outPosition_, Vector2.one));
             AddElement(PoseOutputNode);
 
-
-            foreach (var node in graph.animNodes_)
+            if (graph.animNodes_ != null && graph.animNodes_.Count > 0)
             {
-                AddEditorNode(node);
+                foreach (var node in graph.animNodes_)
+                {
+                    AddEditorNode(node, false);
+                }
             }
-            // Nodes
-            /*            var nodeTable = new Dictionary<string, MixerGraphEditorNode>(GraphLayer.Nodes.Count + 1);
-                        foreach (var nodeData in GraphLayer.Nodes)
+            
+            if (graph.dataNodes_ != null && graph.dataNodes_.Count > 0)
+            {
+                foreach (var node in graph.dataNodes_)
+                {
+                    AddEditorNode(node, false);
+                }
+            }
+
+            if (graph.connections_ != null && graph.connections_.Count > 0)
+            {
+                foreach (var con in graph.connections_)
+                {
+                    var source = graph.GetNode(con.sourceIsAnim, con.sourceId);
+                    var target = graph.GetNode(con.targetIsAnim, con.targetId);
+                    var editorSource = runtimeNode2Editor_[source];
+                    var editorTarget = runtimeNode2Editor_[target];
+                    var edge = editorTarget.input_[con.targetPort].ConnectTo<FlowingGraphEdge>(editorSource.outPut_);
+                    AddElement(edge);
+                }
+            }
+            if (graph.rootId_ != -1)
+            {
+                var rootNode = graph.rootNode_;
+                var editorRootNode = runtimeNode2Editor_[rootNode];
+                var outEdge = PoseOutputNode.PoseInputPort.ConnectTo<FlowingGraphEdge>(editorRootNode.outPut_);
+                AddElement(outEdge);
+            }
+
+            foreach(var node in runtimeNode2Editor_.Values)
+            {
+                node.ActivateConnectAble();
+            }
+            
+        }
+
+        /*        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+                {
+                    base.BuildContextualMenu(evt);
+                    if (selection.Count > 0) 
+                    {
+                        evt.menu.AppendAction("Delete", DeleteSelectedNodes, DropdownMenuAction.AlwaysEnabled);
+                    }
+                }*/
+
+        /*        private void DeleteSelectedNodes(DropdownMenuAction action)
+                {
+                    foreach(var sel in selection)
+                    {
+                        if(sel is EditorNodeBase editorNode)
                         {
-                            var node = PlayableEditorNodeFactory.CreateNode(GraphAsset, nodeData, false);
-                            node.OnDoubleClicked += OnDoubleClickNode;
-                            AddElement(node);
-                            nodeTable.Add(node.Guid, node);
+                            if(editorNode is not EditorNode_AnimOutput)
+                            {
+                                graph.RemoveNode(editorNode.node_);
+                            }
                         }
+                    }
+                }*/
 
-                        // Edges
-                        if (!string.IsNullOrEmpty(PoseOutputNode.RootPlayableNodeGuid))
-                        {
-                            var rootPlayableNode = nodeTable[PoseOutputNode.RootPlayableNodeGuid];
-                            var edge = PoseOutputNode.PoseInputPort.ConnectTo<FlowingGraphEdge>(rootPlayableNode.OutputPort);
-                            AddElement(edge);
-                        }*/
-
-
+        public override EventPropagation DeleteSelection()
+        {
+            foreach (var sel in selection)
+            {
+                if (sel is EditorNodeBase editorNode)
+                {
+                    if (editorNode is not EditorNode_AnimOutput)
+                    {
+                        graph.RemoveNode(editorNode.node_);
+                    }
+                }
+            }
+            return base.DeleteSelection();
         }
 
         public void AddNode(GraphNodeBase node, Vector2 position)
         {
             Vector2 localMousePosition = contentViewContainer.WorldToLocal(position - window_.position.position);
             node.SetPosition(localMousePosition);
-            AddEditorNode(node);
+            AddEditorNode(node, true);
             graph.AddNode(node);
         }
 
-        public void AddEditorNode(GraphNodeBase node)
+        public void AddEditorNode(GraphNodeBase node, bool isActive)
         {
-            Type nodeType = NodeTable.RuntimeNode2Editor[node.GetType()];
-            if (nodeType == null) return;
-            if (Activator.CreateInstance(nodeType, node, this) is EditorNodeBase editorNode)
+            object create;
+            if (node.GetType().IsSubclassOf(typeof(OperatorNodeBase)))
+            {
+                create = new EditorNode_Operator((OperatorNodeBase)node, this);
+            }
+            else
+            {
+                Type nodeType = NodeTable.RuntimeNode2Editor[node.GetType()];
+                if (nodeType == null) return;
+                create = Activator.CreateInstance(nodeType, node, this);
+            }
+            if (create is EditorNodeBase editorNode)
             {
                 AddElement(editorNode);
                 runtimeNode2Editor_.Add(node, editorNode);
+                if (isActive)
+                {
+                    editorNode.ActivateConnectAble();
+                }
+                editorNode.OnDoubleClicked += OnDoubleClickNode;
             }
         }
+
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             var compatiblePorts = new List<Port>();
@@ -93,6 +166,7 @@ namespace AnimGraph.Editor
         {
             var contextMenu = new ContextualMenuManipulator(evt =>
             {
+                //evt.menu.AppendAction("Delete", DeleteSelectedNodes);
                 // 将菜单绑定到事件
                 evt.menu.AppendAction("Create", action =>
                 {
@@ -170,7 +244,8 @@ namespace AnimGraph.Editor
             entries.Add(dataNodeGroup);
             foreach (Type type in types)
             {
-                if (!type.IsAbstract && type.IsSubclassOf(typeof(DataNodeBase)) && !type.GetInterfaces().Contains(typeof(IStateMachinePart)))
+                if (!type.IsAbstract && type.IsSubclassOf(typeof(DataNodeBase)) && !type.GetInterfaces().Contains(typeof(IStateMachinePart))
+                    && !type.Equals(typeof(Node_Function)) && !type.Equals(typeof(Node_GetVar)) && !type.Equals(typeof(Node_SetVar)))
                 {
                     var nodeEntry = new SearchTreeEntry(new GUIContent(type.Name))
                     {
@@ -180,20 +255,88 @@ namespace AnimGraph.Editor
                     entries.Add(nodeEntry);
                 }
             }
-            return entries;
+            entries.Add(new SearchTreeEntry(new GUIContent("Function-Bool"))
+            {
+                level = 2,
+                userData = typeof(Node_Function)
+            });
+            entries.Add(new SearchTreeEntry(new GUIContent("Function-Int"))
+            {
+                level = 2,
+                userData = typeof(Node_Function)
+            });
+            entries.Add(new SearchTreeEntry(new GUIContent("Function-Float"))
+            {
+                level = 2,
+                userData = typeof(Node_Function)
+            });
+            foreach (var variable in graphView.varList_)
+            {
+                entries.Add(new SearchTreeEntry(new GUIContent(string.Format("Get {0}", variable.name)))
+                {
+                    level = 2,
+                    userData = variable
+                });
+                entries.Add(new SearchTreeEntry(new GUIContent(string.Format("Set {0}", variable.name)))
+                {
+                    level = 2,
+                    userData = variable
+                });
+            }
+             return entries;
         }
 
         public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
         {
+            if (entry.content.text.StartsWith("Get"))
+            {
+                Variable variable = entry.userData as Variable;
+                Node_GetVar getter = new Node_GetVar(variable);
+                graphView.AddNode(getter, context.screenMousePosition);
+                return true;
+            }
+            else if (entry.content.text.StartsWith("Set"))
+            {
+                Variable variable = entry.userData as Variable;
+                Node_SetVar setter = new Node_SetVar(variable);
+                graphView.AddNode(setter, context.screenMousePosition);
+                return true;
+            }
+
             Type type = entry.userData as Type;
 
             if (type != null)
             {
-                object instance = Activator.CreateInstance(type);
-                if (instance is GraphNodeBase node)
+                if (type.Equals(typeof(Node_Function)))
                 {
-                    graphView.AddNode(node, context.screenMousePosition);
+                    string name = entry.content.text;
+                    PinType retType;
+                    switch (name[9])
+                    {
+                        case 'B':
+                            retType = PinType.EBool;
+                            break;
+                        case 'I':
+                            retType = PinType.EInt;
+                            break;
+                        case 'F':
+                            retType = PinType.EFloat;
+                            break;
+                        default:
+                            return false;
+                    }
+                    Node_Function func = new Node_Function(retType);
+                    graphView.AddNode(func, context.screenMousePosition);
                     return true;
+                }
+                else
+                {
+                    object instance = Activator.CreateInstance(type);
+                    if (instance is GraphNodeBase node)
+                    {
+                        graphView.AddNode(node, context.screenMousePosition);
+                        return true;
+                    }
                 }
             }
             return false;

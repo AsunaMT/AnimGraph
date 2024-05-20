@@ -14,5 +14,10 @@ namespace AnimGraph
         public int sourceId;
         public int targetId;
         public int targetPort;
+
+        public bool ContainsNode(int id, bool isAnim)
+        {
+            return (sourceIsAnim == isAnim && sourceId == id) || (targetIsAnim == isAnim && targetId == id);
+        }
     }
 }

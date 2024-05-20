@@ -6,14 +6,22 @@ using System.Threading.Tasks;
 
 namespace AnimGraph.Editor
 {
-    public class EditorNode_Mixer : EditorNodeBase
+    public class EditorNode_Mixer : AnimEditorNodeBase
     {
-        Node_Mixer mixer => (Node_Mixer)node_;
+        public Node_Mixer mixer => (Node_Mixer)node_;
 
         public EditorNode_Mixer(Node_Mixer node, GraphViewBase grapView) : base(node, grapView)
         {
             node_  = node;
             title = "mixer";
+        }
+
+        public override InspectorBase GetInspector()
+        {
+            var inspector = new Inspector_Mixer();
+            inspector.SetTarget(this);
+
+            return inspector;
         }
     }
 }

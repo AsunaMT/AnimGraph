@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Text;
+using System.Xml;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace AnimGraph.Editor
 {
@@ -11,62 +16,57 @@ namespace AnimGraph.Editor
 
         public EditorNode_SM_Entry StateMachineEntryNode { get; }
 
+        public Node_StateMachine stateMachine_ => (Node_StateMachine)GraphAsset;
+
+        public Dictionary<State, EditorNode_SM_State> runtime2editorState_ = new Dictionary<State, EditorNode_SM_State>();
 
         public StateMachineGraphView(Node_StateMachine graphAsset, VisualElement container)
             : base(graphAsset, container)
         {
+            stateMachine_.InitTable();
             // Root node
-            StateMachineEntryNode = new EditorNode_SM_Entry(GraphAsset);
+            StateMachineEntryNode = new EditorNode_SM_Entry(this);
             AddElement(StateMachineEntryNode);
 
-            // Nodes
-            var nodeTable = new Dictionary<string, StateEditorNode>(GraphLayer.Nodes.Count + 1);
-            foreach (var nodeData in GraphLayer.Nodes)
+            foreach(var state in graphAsset.sm_.states)
             {
-                var stateNodeData = (StateNode)nodeData;
-                var stateNodeGraphData = GraphAsset.GraphLayers.Find(data => data.Guid.Equals(stateNodeData.LinkedGraphGuid));
-                var node = StateEditorNodeFactory.CreateNode(GraphAsset, stateNodeData, stateNodeGraphData);
-                node.OnDoubleClicked += OnDoubleClickNode;
-                nodeTable.Add(node.Guid, node);
-                AddElement(node);
+                var editorState = new EditorNode_SM_State(state, this);
+                editorState.OnDoubleClicked += OnDoubleClickNode;
+                AddElement(editorState);
+                runtime2editorState_.Add(state, editorState);
             }
 
-            // Edges
-            if (!string.IsNullOrEmpty(StateMachineEntryNode.DestStateNodeGuid))
+            if (graphAsset.sm_.entry != -1)
             {
-                var rootStateNode = nodeTable[StateMachineEntryNode.DestStateNodeGuid];
-                var edge = StateMachineEntryNode.ViewOnlyConnect(rootStateNode);
+                var entryState = runtime2editorState_[graphAsset.entryState];
+                var edge = StateMachineEntryNode.ViewOnlyConnect(entryState);
                 edge.IsEntryEdge = true;
                 AddElement(edge);
             }
 
-            // Transitions
-            foreach (var stateNode in nodeTable.Values)
+            foreach (var state in graphAsset.sm_.states)
             {
-                foreach (var transition in stateNode.Transitions)
+                foreach (var transition in state.exitTransitions)
                 {
-                    var destNode = nodeTable[transition.DestStateGuid];
-                    var edge = stateNode.ViewOnlyConnect(destNode);
+                    var destNode = runtime2editorState_[graphAsset.GetState(transition.nextState)];
+                    var edge = runtime2editorState_[state].ViewOnlyConnect(destNode);
                     edge.IsEntryEdge = false;
                     AddElement(edge);
                 }
             }
-
-            // Callbacks
-            graphViewChanged += OnGraphViewChanged;
         }
 
-        public List<StateGraphEditorNode> GetCompatibleNodes(StateGraphEditorNode fromNode)
+        public List<EditorNode_SM_State> GetCompatibleNodes(EditorNode_SM_NodeBase fromNode)
         {
-            var nodeList = new List<StateGraphEditorNode>();
+            var nodeList = new List<EditorNode_SM_State>();
             foreach (var node in nodes)
             {
-                if (node == fromNode || node is StateMachineEntryEditorNode)
+                if (node == fromNode || node is EditorNode_SM_Entry)
                 {
                     continue;
                 }
 
-                nodeList.Add((StateGraphEditorNode)node);
+                nodeList.Add((EditorNode_SM_State)node);
             }
 
             return nodeList;
@@ -80,121 +80,45 @@ namespace AnimGraph.Editor
             {
                 // Build menu items
                 var localMousePos = contentViewContainer.WorldToLocal(evt.mousePosition);
-                foreach (var nodeType in StateEditorNodeFactory.GetStateNodeTypes())
-                {
-                    // New mixer state
-                    evt.menu.AppendAction($"Create Mixer {nodeType.Name}",
-                        _ => CreateNode(nodeType, GraphType.Mixer, localMousePos));
-
-                    // New sub state machine state
-                    // TODO: Give sub state machine a different color
-                    evt.menu.AppendAction($"Create Sub State Machine {nodeType.Name}",
-                        _ => CreateNode(nodeType, GraphType.StateMachine, localMousePos));
-                }
-
+                    evt.menu.AppendAction("Create State",
+                        _ => TryCreateState(localMousePos));
                 evt.menu.AppendSeparator();
             }
-
-            void CreateNode(Type nodeType, GraphType graphType, Vector2 localMousePosition)
+            
+            void TryCreateState(Vector2 localMousePosition)
             {
-                var stateNode = StateEditorNodeFactory.CreateNode(GraphAsset, nodeType, graphType,
-                    localMousePosition, out var stateNodeGraphData);
-                if (stateNode != null)
-                {
-                    stateNode.OnDoubleClicked += OnDoubleClickNode;
-
-                    GraphAsset.GraphLayers.Add(stateNodeGraphData);
-                    GraphLayer.Nodes.Add(stateNode.Node);
-                    AddElement(stateNode);
-                    RaiseContentChangedEvent(DataCategories.GraphData);
-                }
+                State state = stateMachine_.CreateState();
+                state.position = localMousePosition;
+                state.SetName(string.Format("New State({0})", state.id));
+                var editorState = new EditorNode_SM_State(state, this);
+                editorState.OnDoubleClicked += OnDoubleClickNode;
+                AddElement(editorState);
             }
         }
+
 
         public void AddStateTransitionEdge(StateTransitionEdge edge, bool forceRaiseGraphViewChangedEvent)
         {
             if (!Contains(edge))
             {
                 AddElement(edge);
-                RaiseContentChangedEvent(DataCategories.TransitionData);
+                //RaiseContentChangedEvent(DataCategories.TransitionData);
             }
             else if (forceRaiseGraphViewChangedEvent)
             {
-                RaiseContentChangedEvent(DataCategories.TransitionData);
+                //RaiseContentChangedEvent(DataCategories.TransitionData);
             }
         }
 
 
-        private GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
+
+
+        private void OnDoubleClickNode(EditorNode_SM_NodeBase graphNode)
         {
-            var changedDataCategories = DataCategories.None;
-            if (graphViewChange.elementsToRemove != null)
-            {
-                for (int i = graphViewChange.elementsToRemove.Count - 1; i >= 0; i--)
-                {
-                    var element = graphViewChange.elementsToRemove[i];
+            if (graphNode is EditorNode_SM_Entry) return;
 
-                    // Delete edges
-                    if (element is StateTransitionEdge edge)
-                    {
-                        edge.ConnectedNode0.RemoveTransition(edge);
-                        edge.ConnectedNode1.RemoveTransition(edge);
-                        changedDataCategories |= DataCategories.TransitionData;
-                    }
-                    // Delete nodes
-                    else if (element is StateEditorNode stateNode)
-                    {
-                        // Node table
-                        for (int j = 0; j < GraphLayer.Nodes.Count; j++)
-                        {
-                            if (GraphLayer.Nodes[j].Guid == stateNode.Guid)
-                            {
-                                GraphLayer.Nodes.RemoveAt(j);
-                                break;
-                            }
-                        }
-
-                        // Transitions
-                        var edgesToRemove = stateNode.ViewOnlyDisconnectAll();
-                        graphViewChange.elementsToRemove.AddRange(edgesToRemove);
-
-                        // State machine entry
-                        if (stateNode.Guid.Equals(StateMachineEntryNode.DestStateNodeGuid))
-                        {
-                            StateMachineEntryNode.DestStateNodeGuid = null;
-                        }
-
-                        // Graphs
-                        for (int j = 0; j < GraphAsset.GraphLayers.Count; j++)
-                        {
-                            if (GraphAsset.GraphLayers[j].Guid.Equals(stateNode.Guid))
-                            {
-                                GraphAsset.GraphLayers.RemoveAt(j);
-                                break;
-                            }
-                        }
-
-                        changedDataCategories |= DataCategories.NodeData;
-                    }
-                }
-            }
-
-            if (graphViewChange.moveDelta.sqrMagnitude > Mathf.Epsilon)
-            {
-                changedDataCategories |= DataCategories.NodeData;
-            }
-
-            RaiseContentChangedEvent(changedDataCategories);
-
-            return graphViewChange;
-        }
-
-        private void OnDoubleClickNode(GraphEditorNode graphNode)
-        {
-            if (graphNode is StateMachineEntryEditorNode) return;
-
-            var graphGuid = ((StateEditorNode)graphNode).MixerGraphGuid;
-            RaiseWantsToOpenGraphEvent(graphGuid);
+/*            var graphGuid = ((EditorNode_SM_State)graphNode).MixerGraphGuid;
+            RaiseWantsToOpenGraphEvent(graphGuid);*/
         }
 
         public override void AddConnection(EditorNodeBase source, EditorNodeBase target, int index)

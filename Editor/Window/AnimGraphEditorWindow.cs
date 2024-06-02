@@ -167,9 +167,8 @@ namespace AnimGraph.Editor
             titleContent.text = _graphAsset.name;
 
             varListManager.Initialize(_graphAsset);
-
+            _graphAsset.EditorInit();
             graphViewManager.OpenGraphView(_graphAsset.mainGraph_);
         }
-
     }
 }

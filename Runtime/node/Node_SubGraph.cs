@@ -69,13 +69,13 @@ namespace AnimGraph
             }
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
         {
-            base.InitNode(animator, graph);
+            base.InitNode(animator, graph, variables);
             InitTable();
             animNodes_.ForEach(node =>
             {
-                node.InitNode(animator, graph);
+                node.InitNode(animator, graph, variables);
             });
             ConnectGraph();
         }
@@ -224,6 +224,21 @@ namespace AnimGraph
             {
                 return GetDataNode(id);
             }
+        }
+
+        public override void Play()
+        {
+            rootNode_.Play();
+        }
+
+        public override void Pause()
+        {
+            rootNode_.Pause();
+        }
+
+        public override void SetTime(float time)
+        {
+            rootNode_.SetTime(time);
         }
     }
 }

@@ -21,49 +21,53 @@ MonoBehaviour:
     name_: AnimGraph
     connections_: []
     animNodes_:
-    - rid: 3257087012595040261
+    - rid: 6623497688487034931
     dataNodes_: []
     rootId_: 0
-    outPosition_: {x: 424.5, y: 153.49998}
-  varList_: []
+    outPosition_: {x: 651.16003, y: 140.6}
+  varList_:
+  - rid: 6623497688487034934
+  - rid: 6623497688487034937
+  - rid: 6623497688487034939
   references:
     version: 2
     RefIds:
-    - rid: 3257087012595040261
+    - rid: 6623497688487034931
       type: {class: Node_StateMachine, ns: AnimGraph, asm: Assembly-CSharp}
       data:
         isAnim_: 1
         isGraph_: 0
         id_: 0
         input_: []
-        position_: {x: 95.599976, y: -74.50798}
+        position_: {x: 253, y: 74.42}
         sm_:
-          name: StateMachine
+          name: locomotion
           entry: 0
-          entryPosition: {x: -18, y: 125}
+          entryPosition: {x: 72.5, y: 94.6}
           states:
           - id: 0
-            name: run
+            name: idle
             entity:
               isAnim_: 1
               isGraph_: 1
               id_: 0
               input_: []
-              position_: {x: 245, y: 125}
-              name_: run
+              position_: {x: 334, y: 113.5}
+              name_: idle
               connections_: []
-              animNodes_: []
+              animNodes_:
+              - rid: 6623497688487034941
               dataNodes_: []
-              rootId_: -1
-              outPosition_: {x: 0, y: 0}
-            position: {x: 245, y: 125}
+              rootId_: 0
+              outPosition_: {x: 436.92, y: 87.880005}
+            position: {x: 334, y: 113.5}
             exitTransitions:
             - id: 0
               previousState: 0
               nextState: 1
               interruptType: 0
               exitTime: 0
-              transTime: 0
+              transTime: 1
               entity:
                 isAnim_: 0
                 isGraph_: 1
@@ -71,16 +75,71 @@ MonoBehaviour:
                 input_: []
                 position_: {x: 0, y: 0}
                 val_:
-                  boolVal_: 0
-                  intVal_: 0
-                  floatVal_: 0
-                  stringVal_: 
+                  rid: 6623497688487034949
                 valType_: 3
-                name_: run->walk
-                connections_: []
-                nodes_: []
-                rootId_: -1
-                outPosition_: {x: 0, y: 0, z: 0}
+                name_: idle->walk
+                connections_:
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 1
+                  targetId: 2
+                  targetPort: 0
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 0
+                  targetId: 3
+                  targetPort: 0
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 2
+                  targetId: 3
+                  targetPort: 1
+                nodes_:
+                - rid: 6623497688487034944
+                - rid: 6623497688487034945
+                - rid: 6623497688487034946
+                - rid: 6623497688487034948
+                rootId_: 3
+                outPosition_: {x: 577, y: 163.5, z: 0}
+              blendCurve:
+                serializedVersion: 2
+                m_Curve: []
+                m_PreInfinity: 2
+                m_PostInfinity: 2
+                m_RotationOrder: 4
+            - id: 1
+              previousState: 0
+              nextState: 2
+              interruptType: 0
+              exitTime: 0
+              transTime: 1
+              entity:
+                isAnim_: 0
+                isGraph_: 1
+                id_: 0
+                input_: []
+                position_: {x: 0, y: 0}
+                val_:
+                  rid: 6623497688487034956
+                valType_: 3
+                name_: idle->run
+                connections_:
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 0
+                  targetId: 2
+                  targetPort: 0
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 1
+                  targetId: 2
+                  targetPort: 1
+                nodes_:
+                - rid: 6623497688487034953
+                - rid: 6623497688487034954
+                - rid: 6623497688487034955
+                rootId_: 2
+                outPosition_: {x: 708.12, y: 191.36, z: 0}
               blendCurve:
                 serializedVersion: 2
                 m_Curve: []
@@ -94,21 +153,22 @@ MonoBehaviour:
               isGraph_: 1
               id_: 0
               input_: []
-              position_: {x: 531, y: 191}
+              position_: {x: 543, y: -46.960007}
               name_: walk
               connections_: []
-              animNodes_: []
+              animNodes_:
+              - rid: 6623497688487034942
               dataNodes_: []
-              rootId_: -1
-              outPosition_: {x: 0, y: 0}
-            position: {x: 531, y: 191}
+              rootId_: 0
+              outPosition_: {x: 445, y: 164}
+            position: {x: 543, y: -46.960007}
             exitTransitions:
             - id: 0
               previousState: 1
               nextState: 0
               interruptType: 0
               exitTime: 0
-              transTime: 0
+              transTime: 1
               entity:
                 isAnim_: 0
                 isGraph_: 1
@@ -116,16 +176,154 @@ MonoBehaviour:
                 input_: []
                 position_: {x: 0, y: 0}
                 val_:
-                  boolVal_: 0
-                  intVal_: 0
-                  floatVal_: 0
-                  stringVal_: 
+                  rid: 6623497688487034952
+                valType_: 3
+                name_: walk->idle
+                connections_:
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 0
+                  targetId: 1
+                  targetPort: 0
+                nodes_:
+                - rid: 6623497688487034950
+                - rid: 6623497688487034951
+                rootId_: 1
+                outPosition_: {x: 618.36, y: 191.16, z: 0}
+              blendCurve:
+                serializedVersion: 2
+                m_Curve: []
+                m_PreInfinity: 2
+                m_PostInfinity: 2
+                m_RotationOrder: 4
+            - id: 1
+              previousState: 1
+              nextState: 2
+              interruptType: 0
+              exitTime: 0
+              transTime: 0.5
+              entity:
+                isAnim_: 0
+                isGraph_: 1
+                id_: 0
+                input_: []
+                position_: {x: 0, y: 0}
+                val_:
+                  rid: 6623497688487034963
                 valType_: 3
                 name_: walk->run
-                connections_: []
-                nodes_: []
-                rootId_: -1
-                outPosition_: {x: 0, y: 0, z: 0}
+                connections_:
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 0
+                  targetId: 2
+                  targetPort: 0
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 1
+                  targetId: 2
+                  targetPort: 1
+                nodes_:
+                - rid: 6623497688487034960
+                - rid: 6623497688487034961
+                - rid: 6623497688487034962
+                rootId_: 2
+                outPosition_: {x: 627.52, y: 194.56, z: 0}
+              blendCurve:
+                serializedVersion: 2
+                m_Curve: []
+                m_PreInfinity: 2
+                m_PostInfinity: 2
+                m_RotationOrder: 4
+          - id: 2
+            name: run
+            entity:
+              isAnim_: 1
+              isGraph_: 1
+              id_: 0
+              input_: []
+              position_: {x: 649, y: 189.5}
+              name_: run
+              connections_: []
+              animNodes_:
+              - rid: 6623497688487034943
+              dataNodes_: []
+              rootId_: 0
+              outPosition_: {x: 501.28, y: 147.36}
+            position: {x: 649, y: 189.5}
+            exitTransitions:
+            - id: 0
+              previousState: 2
+              nextState: 1
+              interruptType: 0
+              exitTime: 0
+              transTime: 0.5
+              entity:
+                isAnim_: 0
+                isGraph_: 1
+                id_: 0
+                input_: []
+                position_: {x: 0, y: 0}
+                val_:
+                  rid: 6623497688487034969
+                valType_: 3
+                name_: run->walk
+                connections_:
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 1
+                  targetId: 2
+                  targetPort: 0
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 2
+                  targetId: 3
+                  targetPort: 1
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 0
+                  targetId: 3
+                  targetPort: 0
+                nodes_:
+                - rid: 6623497688487034964
+                - rid: 6623497688487034965
+                - rid: 6623497688487034966
+                - rid: 6623497688487034968
+                rootId_: 3
+                outPosition_: {x: 640.4, y: 210.8, z: 0}
+              blendCurve:
+                serializedVersion: 2
+                m_Curve: []
+                m_PreInfinity: 2
+                m_PostInfinity: 2
+                m_RotationOrder: 4
+            - id: 1
+              previousState: 2
+              nextState: 0
+              interruptType: 0
+              exitTime: 0
+              transTime: 1
+              entity:
+                isAnim_: 0
+                isGraph_: 1
+                id_: 0
+                input_: []
+                position_: {x: 0, y: 0}
+                val_:
+                  rid: 6623497688487034959
+                valType_: 3
+                name_: run->idle
+                connections_:
+                - sourceIsAnim: 0
+                  targetIsAnim: 0
+                  sourceId: 0
+                  targetId: 1
+                  targetPort: 0
+                nodes_:
+                - rid: 6623497688487034957
+                - rid: 6623497688487034958
+                rootId_: 1
+                outPosition_: {x: 560.6, y: 156.72, z: 0}
               blendCurve:
                 serializedVersion: 2
                 m_Curve: []
@@ -133,4 +331,401 @@ MonoBehaviour:
                 m_PostInfinity: 2
                 m_RotationOrder: 4
         curState: 0
-        curStateTime: 0
+        curStateTime: 51.170883
+    - rid: 6623497688487034934
+      type: {class: Variable, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        type: 0
+        name: alive
+        value:
+          rid: 6623497688487034935
+    - rid: 6623497688487034935
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 
+    - rid: 6623497688487034937
+      type: {class: Variable, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        type: 0
+        name: moving
+        value:
+          rid: 6623497688487034938
+    - rid: 6623497688487034938
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034939
+      type: {class: Variable, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        type: 0
+        name: canRun
+        value:
+          rid: 6623497688487034940
+    - rid: 6623497688487034940
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034941
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 257, y: 49.500008}
+        clipAsset_: {fileID: -203655887218126122, guid: 2cd516ef4d1082f4597705e0aa0ec019, type: 3}
+    - rid: 6623497688487034942
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 249, y: 125.5}
+        clipAsset_: {fileID: -203655887218126122, guid: 2834f25d04c38de44b789771235772f0, type: 3}
+    - rid: 6623497688487034943
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 309.5, y: 136.5}
+        clipAsset_: {fileID: -203655887218126122, guid: d548da049f7ea4a4b8eb3861cee2d8ce, type: 3}
+    - rid: 6623497688487034944
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 103.5, y: 76.5}
+        val_:
+          rid: 6623497688487034938
+        valType_: 3
+        variable_:
+          rid: 6623497688487034937
+        varName_: 
+    - rid: 6623497688487034945
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 1
+        input_: []
+        position_: {x: 13.600006, y: 293.5}
+        val_:
+          rid: 6623497688487034940
+        valType_: 3
+        variable_:
+          rid: 6623497688487034939
+        varName_: 
+    - rid: 6623497688487034946
+      type: {class: Node_Not, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 2
+        input_:
+        - index: 0
+          pinTye: 3
+          name: input
+        position_: {x: 169, y: 269.5}
+        val_:
+          rid: 6623497688487034947
+        valType_: 3
+        operatorName: Not
+    - rid: 6623497688487034947
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 
+    - rid: 6623497688487034948
+      type: {class: Node_And, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 3
+        input_:
+        - index: 0
+          pinTye: 3
+          name: left
+        - index: 1
+          pinTye: 3
+          name: right
+        position_: {x: 361.5, y: 123.5}
+        val_:
+          rid: 6623497688487034949
+        valType_: 3
+        operatorName: '&&'
+    - rid: 6623497688487034949
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034950
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 194.5, y: 191}
+        val_:
+          rid: 6623497688487034938
+        valType_: 3
+        variable_:
+          rid: 6623497688487034937
+        varName_: 
+    - rid: 6623497688487034951
+      type: {class: Node_Not, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 1
+        input_:
+        - index: 0
+          pinTye: 3
+          name: input
+        position_: {x: 379.5, y: 180}
+        val_:
+          rid: 6623497688487034952
+        valType_: 3
+        operatorName: Not
+    - rid: 6623497688487034952
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 
+    - rid: 6623497688487034953
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 210, y: 115.5}
+        val_:
+          rid: 6623497688487034938
+        valType_: 3
+        variable_:
+          rid: 6623497688487034937
+        varName_: 
+    - rid: 6623497688487034954
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 1
+        input_: []
+        position_: {x: 225, y: 268.5}
+        val_:
+          rid: 6623497688487034940
+        valType_: 3
+        variable_:
+          rid: 6623497688487034939
+        varName_: 
+    - rid: 6623497688487034955
+      type: {class: Node_And, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 2
+        input_:
+        - index: 0
+          pinTye: 3
+          name: left
+        - index: 1
+          pinTye: 3
+          name: right
+        position_: {x: 469, y: 176.5}
+        val_:
+          rid: 6623497688487034956
+        valType_: 3
+        operatorName: '&&'
+    - rid: 6623497688487034956
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034957
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 215.5, y: 115.5}
+        val_:
+          rid: 6623497688487034938
+        valType_: 3
+        variable_:
+          rid: 6623497688487034937
+        varName_: 
+    - rid: 6623497688487034958
+      type: {class: Node_Not, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 1
+        input_:
+        - index: 0
+          pinTye: 3
+          name: input
+        position_: {x: 346.5, y: 220.5}
+        val_:
+          rid: 6623497688487034959
+        valType_: 3
+        operatorName: Not
+    - rid: 6623497688487034959
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034960
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 238.5, y: 137.5}
+        val_:
+          rid: 6623497688487034938
+        valType_: 3
+        variable_:
+          rid: 6623497688487034937
+        varName_: 
+    - rid: 6623497688487034961
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 1
+        input_: []
+        position_: {x: 264.5, y: 274.5}
+        val_:
+          rid: 6623497688487034940
+        valType_: 3
+        variable_:
+          rid: 6623497688487034939
+        varName_: 
+    - rid: 6623497688487034962
+      type: {class: Node_And, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 2
+        input_:
+        - index: 0
+          pinTye: 3
+          name: left
+        - index: 1
+          pinTye: 3
+          name: right
+        position_: {x: 463.5, y: 177.5}
+        val_:
+          rid: 6623497688487034963
+        valType_: 3
+        operatorName: '&&'
+    - rid: 6623497688487034963
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034964
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 144.5, y: 119}
+        val_:
+          rid: 6623497688487034938
+        valType_: 3
+        variable_:
+          rid: 6623497688487034937
+        varName_: 
+    - rid: 6623497688487034965
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 1
+        input_: []
+        position_: {x: 128.5, y: 334}
+        val_:
+          rid: 6623497688487034940
+        valType_: 3
+        variable_:
+          rid: 6623497688487034939
+        varName_: 
+    - rid: 6623497688487034966
+      type: {class: Node_Not, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 2
+        input_:
+        - index: 0
+          pinTye: 3
+          name: input
+        position_: {x: 292.5, y: 279}
+        val_:
+          rid: 6623497688487034967
+        valType_: 3
+        operatorName: Not
+    - rid: 6623497688487034967
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 
+    - rid: 6623497688487034968
+      type: {class: Node_And, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 3
+        input_:
+        - index: 0
+          pinTye: 3
+          name: left
+        - index: 1
+          pinTye: 3
+          name: right
+        position_: {x: 447.5, y: 187}
+        val_:
+          rid: 6623497688487034969
+        valType_: 3
+        operatorName: '&&'
+    - rid: 6623497688487034969
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 

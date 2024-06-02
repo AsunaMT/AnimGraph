@@ -13,7 +13,15 @@ namespace AnimGraph.Editor
         public EditorNode_SubGraph(Node_SubGraph node, GraphViewBase grapView) : base(node, grapView)
         {
             node_ = node;
-            title = string.Format("Sub AnimGraph({0})", graph_.id_);
+            if (string.IsNullOrEmpty(node.name_))
+            {
+                title = string.Format("Sub AnimGraph({0})", graph_.id_);
+            }
+            else
+            {
+                title = node.name_;
+            }
+            
         }
 
         public override InspectorBase GetInspector()

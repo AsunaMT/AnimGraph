@@ -105,6 +105,7 @@ namespace AnimGraph
 
         public string name;
 
+        [SerializeReference]
         public Value value;
 
         public Variable(string name, bool value)

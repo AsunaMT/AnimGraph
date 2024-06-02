@@ -67,16 +67,16 @@ namespace AnimGraph
             input_ = null;
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
         {
-            base.InitNode(animator, graph);
+            base.InitNode(animator, graph, variables);
             sm_.InitTable();
             foreach (var state in sm_.states)
             {
-                state.entity.InitNode(animator, graph);
+                state.entity.InitNode(animator, graph, variables);
                 foreach (var transition in state.exitTransitions)
                 {
-                    transition.entity.InitNode(animator, graph);
+                    transition.entity.InitNode(animator, graph, variables);
                 }
             }
             curState = sm_.entry;
@@ -166,7 +166,8 @@ namespace AnimGraph
                 return;
             }
 
-            foreach (var activeState in activeStatesAndWeight_.Keys)
+            var keys = new List<int>(activeStatesAndWeight_.Keys);
+            foreach (var activeState in keys)
             {
                 activeStatesAndWeight_[activeState] = 0f;
             }
@@ -190,13 +191,20 @@ namespace AnimGraph
             }
 
             int preCount = runningTransitions_.Count - 1;
-            float preOneTransWeight = main.previousStateWeight / preCount;
-            for (int i = 0; i < preCount;)
+            if(preCount > 0 )
             {
-                var trans = runningTransitions_[i];
-                trans.previousStateWeight -= Time.deltaTime / trans.transition.transTime;
-                activeStatesAndWeight_[trans.transition.previousState] += trans.previousStateWeight * preOneTransWeight;
-                activeStatesAndWeight_[trans.transition.nextState] += (1 - trans.previousStateWeight) * preOneTransWeight;
+                float preOneTransWeight = main.previousStateWeight / preCount;
+                for (int i = 0; i < preCount;)
+                {
+                    var trans = runningTransitions_[i];
+                    trans.previousStateWeight -= Time.deltaTime / trans.transition.transTime;
+                    activeStatesAndWeight_[trans.transition.previousState] += trans.previousStateWeight * preOneTransWeight;
+                    activeStatesAndWeight_[trans.transition.nextState] += (1 - trans.previousStateWeight) * preOneTransWeight;
+                }
+            }
+            else
+            {
+                activeStatesAndWeight_[main.transition.previousState] = 1 - weight;
             }
             foreach(var active in activeStatesAndWeight_)
             {

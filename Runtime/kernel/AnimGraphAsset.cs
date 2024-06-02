@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -18,9 +19,12 @@ namespace AnimGraph
 
         private PlayableOutput output_;
 
+        [SerializeReference]
         public List<Variable> varList_ = new List<Variable>();
 
-        public Dictionary<string, int> varName2Index_ = new Dictionary<string, int>();
+        public Dictionary<string, Variable> varTable_ = new Dictionary<string, Variable>();
+
+        private bool init_ = false;
 
         public void Init(Animator animator)
         {
@@ -30,11 +34,22 @@ namespace AnimGraph
             animator_ = animator;
             animator_.applyRootMotion = false;
             graph_ = PlayableGraph.Create();
-            mainGraph_.InitNode(animator_, graph_);
+            mainGraph_.InitNode(animator_, graph_, varTable_);
             mainGraph_.CreatePlayable(animator_, graph_);
             mainGraph_.InitConnection(animator_, graph_);
             output_ = AnimationPlayableOutput.Create(graph_, "AnimGraph", animator);
             output_.SetSourcePlayable(mainGraph_.outputPlayable_);
+            init_ = true;
+        }
+
+        public void EditorInit()
+        {
+            if (!init_)
+            {
+                InitVarTable();
+                graph_ = PlayableGraph.Create();
+                mainGraph_?.InitNode(null, graph_, varTable_);
+            }
         }
 
         public void Play()
@@ -56,9 +71,9 @@ namespace AnimGraph
 
         public bool GetBool(string name)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                return varList_[index].value.Bool();
+                return res.value.Bool();
             }
             else
             {
@@ -68,9 +83,9 @@ namespace AnimGraph
 
         public int GetInt(string name)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                return varList_[index].value.Int();
+                return res.value.Int();
             }
             else
             {
@@ -80,9 +95,9 @@ namespace AnimGraph
 
         public float GetFloat(string name)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                return varList_[index].value.Float();
+                return res.value.Float();
             }
             else
             {
@@ -92,9 +107,9 @@ namespace AnimGraph
 
         public string GetString(string name)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                return varList_[index].value.String();
+                return res.value.String();
             }
             else
             {
@@ -104,33 +119,33 @@ namespace AnimGraph
 
         public void SetBool(string name, bool value)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                varList_[index].value.SetBool(value);
+                res.value.SetBool(value);
             }
         }
 
         public void SetInt(string name, int value)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                varList_[index].value.SetInt(value);
+                res.value.SetInt(value);
             }
         }
 
         public void SetFloat(string name, float value)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                varList_[index].value.SetFloat(value);
+                res.value.SetFloat(value);
             }
         }
 
         public void SetString(string name, string value)
         {
-            if (varName2Index_.TryGetValue(name, out var index))
+            if (varTable_.TryGetValue(name, out var res))
             {
-                varList_[index].value.SetString(value);
+                res.value.SetString(value);
             }
         }
 
@@ -156,9 +171,10 @@ namespace AnimGraph
 
         public void InitVarTable()
         {
+            varTable_ = new Dictionary<string, Variable>();
             for (int i = 0; i < varList_.Count; i++)
             {
-                varName2Index_.Add(varList_[i].name, i);
+                varTable_.Add(varList_[i].name, varList_[i]);
             }
         }
 
@@ -168,7 +184,7 @@ namespace AnimGraph
         {
             int index = varList_.Count;
             var variable = new Variable("Bool_" + index.ToString(), false);
-            varName2Index_.Add(variable.name, index);
+            varTable_.Add(variable.name, variable);
             varList_.Add(variable);
         }
 
@@ -176,7 +192,7 @@ namespace AnimGraph
         {
             int index = varList_.Count;
             var variable = new Variable("Int_" + index.ToString(), 0);
-            varName2Index_.Add(variable.name, index);
+            varTable_.Add(variable.name, variable);
             varList_.Add(variable);
         }
 
@@ -184,22 +200,21 @@ namespace AnimGraph
         {
             int index = varList_.Count;
             var variable = new Variable("Float_" + index.ToString(), 0f);
-            varName2Index_.Add(variable.name, index);
+            varTable_.Add(variable.name, variable);
             varList_.Add(variable);
         }
 
         public void ChangeVarName(Variable target, string newName)
         {
-            int index = varName2Index_[target.name];
-            varName2Index_.Remove(target.name);
-            varName2Index_.Add(newName, index);
+            varTable_.Remove(target.name);
+            varTable_.Add(newName, target);
             target.name = newName;
         }
 
         public void DeleteVar(Variable target)
         {
             varList_.Remove(target);
-            varName2Index_.Remove(target.name);
+            varTable_.Remove(target.name);
         }
 
 #endif

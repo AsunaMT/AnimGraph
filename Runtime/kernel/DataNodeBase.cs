@@ -12,6 +12,7 @@ namespace AnimGraph
     [Serializable]
     public abstract class DataNodeBase : GraphNodeBase
     {
+        [SerializeReference]
         public Value val_;
         public PinType valType_;
 
@@ -54,7 +55,7 @@ namespace AnimGraph
             
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
         {
             
         }

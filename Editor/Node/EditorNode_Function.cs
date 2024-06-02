@@ -13,7 +13,14 @@ namespace AnimGraph.Editor
         public EditorNode_Function(Node_Function func, GraphViewBase grapView) : base(func, grapView, func.GetOutType())
         {
             node_ = func;
-            title = string.Format("Function({0})", func.id_);
+            if (string.IsNullOrEmpty(func.name_))
+            {
+                title = string.Format("Function({0})", func.id_);
+            }
+            else
+            {
+                title = func.name_;
+            }
         }
 
         public override InspectorBase GetInspector()

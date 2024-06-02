@@ -18,7 +18,7 @@ namespace AnimGraph
             isAnim_ = true;
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
         {
 
         }

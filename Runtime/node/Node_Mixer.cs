@@ -60,9 +60,9 @@ namespace AnimGraph
             mixer_.SetInputWeight(1, 1f - weight_);
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
         {
-            base.InitNode(animator, graph);
+            base.InitNode(animator, graph, variables);
         }
 
         public override void InitConnection(Animator animator, PlayableGraph graph)
@@ -82,7 +82,7 @@ namespace AnimGraph
                 index = 1;
                 shouldNode = "AnimNode";
             }
-            else if (error = input_[2].Vaild && input_[1].node.isAnim_)
+            else if (error = input_[2].Vaild && input_[2].node.isAnim_)
             {
                 index = 2;
                 shouldNode = "DataNode";
@@ -93,6 +93,8 @@ namespace AnimGraph
                 return;
             }
 #endif
+            input_[0].node.InitConnection(animator, graph);
+            input_[1].node.InitConnection(animator, graph);
             weight_ = input_[2].Vaild ? input_[2].GetFloat() : weight_;
             mixer_.AddInput(input_[0].GetPlayable(), 0, 1 - weight_);
             mixer_.AddInput(input_[1].GetPlayable(), 0, weight_);

@@ -19,9 +19,9 @@ namespace AnimGraph
 
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
         {
-            base.InitNode(animator, graph);
+            base.InitNode(animator, graph, variables);
         }
 
         public override void CreatePlayable(Animator animator, PlayableGraph graph)

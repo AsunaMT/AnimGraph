@@ -79,8 +79,8 @@ namespace AnimGraph.Editor
             style.height = 2; // For debugging
             transform.position = Vector3.zero;
 
-            if (!_lineTex) _lineTex = Resources.Load<Texture2D>("AnimationGraph/LineNormal4");
-            if (!_arrowTex) _arrowTex = Resources.Load<Texture2D>("AnimationGraph/ArrowNormal64");
+            if (!_lineTex) _lineTex = Resources.Load<Texture2D>("LineNormal4");
+            if (!_arrowTex) _arrowTex = Resources.Load<Texture2D>("ArrowNormal64");
 
             onGUIHandler = DrawEdge;
         }

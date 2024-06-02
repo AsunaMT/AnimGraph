@@ -1,0 +1,384 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54cdef55283365b4f941bf3258f3ee95, type: 3}
+  m_Name: AnimGraph 1
+  m_EditorClassIdentifier: 
+  mainGraph_:
+    isAnim_: 1
+    isGraph_: 1
+    id_: 0
+    input_: []
+    position_: {x: 0, y: 0}
+    name_: AnimGraph
+    connections_:
+    - sourceIsAnim: 1
+      targetIsAnim: 1
+      sourceId: 1
+      targetId: 0
+      targetPort: 0
+    - sourceIsAnim: 1
+      targetIsAnim: 1
+      sourceId: 2
+      targetId: 0
+      targetPort: 1
+    - sourceIsAnim: 0
+      targetIsAnim: 0
+      sourceId: 0
+      targetId: 2
+      targetPort: 0
+    - sourceIsAnim: 0
+      targetIsAnim: 1
+      sourceId: 2
+      targetId: 0
+      targetPort: 2
+    - sourceIsAnim: 0
+      targetIsAnim: 0
+      sourceId: 3
+      targetId: 1
+      targetPort: 0
+    - sourceIsAnim: 0
+      targetIsAnim: 0
+      sourceId: 1
+      targetId: 2
+      targetPort: 1
+    - sourceIsAnim: 0
+      targetIsAnim: 1
+      sourceId: 4
+      targetId: 3
+      targetPort: 2
+    - sourceIsAnim: 1
+      targetIsAnim: 1
+      sourceId: 0
+      targetId: 3
+      targetPort: 0
+    - sourceIsAnim: 1
+      targetIsAnim: 1
+      sourceId: 4
+      targetId: 3
+      targetPort: 1
+    animNodes_:
+    - rid: 6623497688487034893
+    - rid: 6623497688487034894
+    - rid: 6623497688487034895
+    - rid: 6623497688487034903
+    - rid: 6623497688487034904
+    - rid: 6623497688487034914
+    dataNodes_:
+    - rid: 6623497688487034892
+    - rid: 6623497688487034896
+    - rid: 6623497688487034898
+    - rid: 6623497688487034902
+    - rid: 6623497688487034908
+    rootId_: 3
+    outPosition_: {x: 644.1471, y: 233.99997}
+  varList_:
+  - rid: 6623497688487034890
+  - rid: 6623497688487034900
+  - rid: 6623497688487034909
+  - rid: 6623497688487034910
+  references:
+    version: 2
+    RefIds:
+    - rid: 6623497688487034890
+      type: {class: Variable, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        type: 0
+        name: Bool_0
+        value:
+          rid: 6623497688487034891
+    - rid: 6623497688487034891
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 
+    - rid: 6623497688487034892
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: -301.50003, y: 167.63}
+        val_:
+          rid: 6623497688487034891
+        valType_: 3
+        variable_:
+          rid: 6623497688487034890
+        varName_: 
+    - rid: 6623497688487034893
+      type: {class: Node_MixByBool, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 0
+        input_:
+        - index: 0
+          pinTye: 0
+          name: True Anim
+        - index: 1
+          pinTye: 0
+          name: False Anim
+        - index: 2
+          pinTye: 3
+          name: Bool
+        position_: {x: 172, y: 58.5}
+        inputCount_: 2
+        control_: 1
+    - rid: 6623497688487034894
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 1
+        input_: []
+        position_: {x: -13, y: -26.979996}
+        clipAsset_: {fileID: -203655887218126122, guid: 2834f25d04c38de44b789771235772f0, type: 3}
+    - rid: 6623497688487034895
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 2
+        input_: []
+        position_: {x: -38.49998, y: 106.49999}
+        clipAsset_: {fileID: -203655887218126122, guid: d548da049f7ea4a4b8eb3861cee2d8ce, type: 3}
+    - rid: 6623497688487034896
+      type: {class: Node_Not, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 1
+        input_:
+        - index: 0
+          pinTye: 3
+          name: input
+        position_: {x: -226.85251, y: 320.5}
+        val_:
+          rid: 6623497688487034897
+        valType_: 3
+        operatorName: Not
+    - rid: 6623497688487034897
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 
+    - rid: 6623497688487034898
+      type: {class: Node_And, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 2
+        input_:
+        - index: 0
+          pinTye: 3
+          name: left
+        - index: 1
+          pinTye: 3
+          name: right
+        position_: {x: -38.5, y: 221}
+        val_:
+          rid: 6623497688487034899
+        valType_: 3
+        operatorName: '&&'
+    - rid: 6623497688487034899
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 1
+        intVal_: 1
+        floatVal_: 1e-45
+        stringVal_: 
+    - rid: 6623497688487034900
+      type: {class: Variable, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        type: 0
+        name: Bool_1
+        value:
+          rid: 6623497688487034901
+    - rid: 6623497688487034901
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034902
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 3
+        input_: []
+        position_: {x: -342.5, y: 359}
+        val_:
+          rid: 6623497688487034901
+        valType_: 3
+        variable_:
+          rid: 6623497688487034900
+        varName_: 
+    - rid: 6623497688487034903
+      type: {class: Node_MixByBool, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 3
+        input_:
+        - index: 0
+          pinTye: 0
+          name: True Anim
+        - index: 1
+          pinTye: 0
+          name: False Anim
+        - index: 2
+          pinTye: 3
+          name: Bool
+        position_: {x: 399.1817, y: 182.5}
+        inputCount_: 2
+        control_: 0
+    - rid: 6623497688487034904
+      type: {class: Node_SubGraph, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 1
+        id_: 4
+        input_: []
+        position_: {x: 135.99994, y: 282}
+        name_: SubGraph
+        connections_:
+        - sourceIsAnim: 1
+          targetIsAnim: 1
+          sourceId: 0
+          targetId: 2
+          targetPort: 0
+        - sourceIsAnim: 1
+          targetIsAnim: 1
+          sourceId: 1
+          targetId: 2
+          targetPort: 1
+        - sourceIsAnim: 0
+          targetIsAnim: 1
+          sourceId: 0
+          targetId: 2
+          targetPort: 2
+        animNodes_:
+        - rid: 6623497688487034905
+        - rid: 6623497688487034906
+        - rid: 6623497688487034907
+        dataNodes_:
+        - rid: 6623497688487034911
+        rootId_: 2
+        outPosition_: {x: 372.76, y: 103.12}
+    - rid: 6623497688487034905
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 27, y: 3}
+        clipAsset_: {fileID: -203655887218126122, guid: 0fa3024f555bf2a44ae86a36d3750af3, type: 3}
+    - rid: 6623497688487034906
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 1
+        input_: []
+        position_: {x: -1.4400024, y: 161}
+        clipAsset_: {fileID: -203655887218126122, guid: 42728ae7429e7354e8611def1261cb64, type: 3}
+    - rid: 6623497688487034907
+      type: {class: Node_MixByBool, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 2
+        input_:
+        - index: 0
+          pinTye: 0
+          name: True Anim
+        - index: 1
+          pinTye: 0
+          name: False Anim
+        - index: 2
+          pinTye: 3
+          name: Bool
+        position_: {x: 160, y: 55}
+        inputCount_: 2
+        control_: 0
+    - rid: 6623497688487034908
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 4
+        input_: []
+        position_: {x: 171.99995, y: 444.5099}
+        val_:
+          rid: 6623497688487034912
+        valType_: 3
+        variable_:
+          rid: 6623497688487034909
+        varName_: 
+    - rid: 6623497688487034909
+      type: {class: Variable, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        type: 0
+        name: dyinig
+        value:
+          rid: 6623497688487034912
+    - rid: 6623497688487034910
+      type: {class: Variable, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        type: 0
+        name: forward
+        value:
+          rid: 6623497688487034913
+    - rid: 6623497688487034911
+      type: {class: Node_GetVar, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 0
+        isGraph_: 0
+        id_: 0
+        input_: []
+        position_: {x: 67.5, y: 266}
+        val_:
+          rid: 6623497688487034913
+        valType_: 3
+        variable_:
+          rid: 6623497688487034910
+        varName_: 
+    - rid: 6623497688487034912
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034913
+      type: {class: Value, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        boolVal_: 0
+        intVal_: 0
+        floatVal_: 0
+        stringVal_: 
+    - rid: 6623497688487034914
+      type: {class: Node_AnimClip, ns: AnimGraph, asm: Assembly-CSharp}
+      data:
+        isAnim_: 1
+        isGraph_: 0
+        id_: 5
+        input_: []
+        position_: {x: -51.00009, y: 461.99997}
+        clipAsset_: {fileID: -203655887218126122, guid: 42728ae7429e7354e8611def1261cb64, type: 3}

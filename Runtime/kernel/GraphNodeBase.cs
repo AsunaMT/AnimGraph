@@ -31,7 +31,7 @@ namespace AnimGraph
             id_ = id;
         }
         //初始化节点接口，会在AnimGraph运行时初始化时调用
-        public abstract void InitNode(Animator animator, PlayableGraph graph);
+        public abstract void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables);
         //连接节点内部的Playable，在所有动画节点执行完CreatePlayable后调用
         public abstract void InitConnection(Animator animator, PlayableGraph graph);
         //连接节点

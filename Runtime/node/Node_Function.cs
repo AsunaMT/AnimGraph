@@ -62,13 +62,13 @@ namespace AnimGraph
             }
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
         {
-            base.InitNode(animator, graph);
+            base.InitNode(animator, graph, variables);
             InitTable();
             nodes_.ForEach(node =>
             {
-                node.InitNode(animator, graph);
+                node.InitNode(animator, graph, variables);
             });
         }
 
@@ -117,6 +117,8 @@ namespace AnimGraph
             {
                 rootNode_?.InitConnection(animator, graph);
             }
+            val_ = rootNode_?.val_;
+            valType_ = rootNode_== null ? 0 : valType_;
         }
 
         public GraphNodeBase GetNode(int id)

@@ -17,6 +17,9 @@ namespace AnimGraph
 
         public bool control_;
 
+        [NonSerialized]
+        private bool old_;
+
         AnimationMixerPlayable mixer_ => (AnimationMixerPlayable)mainPlayable_;
 
         public Node_MixByBool() : base()
@@ -55,14 +58,57 @@ namespace AnimGraph
         public override void Execute()
         {
             control_ = input_[2].Vaild ? input_[2].GetBool() : true;
-            float weight = control_ ? 1f : 0f;
-            mixer_.SetInputWeight(0, weight);
-            mixer_.SetInputWeight(1, 1f - weight);
+            if (old_ != control_)
+            {
+                Refresh();
+            }
+            old_ = control_;
         }
 
-        public override void InitNode(Animator animator, PlayableGraph graph)
+        void Refresh()
         {
-            base.InitNode(animator, graph);
+            if (control_)
+            {
+                mixer_.SetInputWeight(0, 1f);
+                mixer_.SetInputWeight(1, 0f);
+
+                input_[0].GetAnim().SetTime(0f);
+                input_[0].GetAnim().Play();
+
+                input_[1].GetAnim().Pause();
+            }
+            else
+            {
+                mixer_.SetInputWeight(0, 0f);
+                mixer_.SetInputWeight(1, 1f);
+
+                input_[0].GetAnim().Pause();
+
+                input_[1].GetAnim().SetTime(0f);
+                input_[1].GetAnim().Play();
+            }
+        }
+
+        public override void Play()
+        {
+            control_ = input_[2].Vaild ? input_[2].GetBool() : true;
+            Refresh();
+            base.Play();
+        }
+
+        public override void Pause()
+        {
+            base.Pause();
+        }
+
+        public override void SetTime(float time)
+        {
+            base.SetTime(time);
+        }
+
+        public override void InitNode(Animator animator, PlayableGraph graph, Dictionary<string, Variable> variables)
+        {
+            base.InitNode(animator, graph, variables);
         }
 
         public override void InitConnection(Animator animator, PlayableGraph graph)
@@ -82,7 +128,7 @@ namespace AnimGraph
                 index = 1;
                 shouldNode = "AnimNode";
             }
-            else if (error = input_[2].Vaild && input_[1].node.isAnim_)
+            else if (error = input_[2].Vaild && input_[2].node.isAnim_)
             {
                 index = 2;
                 shouldNode = "DataNode";
@@ -93,10 +139,13 @@ namespace AnimGraph
                 return;
             }
 #endif
+            input_[0].node.InitConnection(animator, graph);
+            input_[1].node.InitConnection(animator, graph);
             control_ = input_[2].Vaild ? input_[2].GetBool() : true;
             float weight = control_ ? 1f : 0f;
             mixer_.AddInput(input_[0].GetPlayable(), 0, 1 - weight);
             mixer_.AddInput(input_[1].GetPlayable(), 0, weight);
+            old_ = !control_;
         }
     }
 }
